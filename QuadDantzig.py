@@ -2,9 +2,6 @@ from gurobipy import *
 import time
 
 
-
-
-
 def SolveTSP(n, c, q, qname):
     t0 = time.time()
 
@@ -23,8 +20,7 @@ def SolveTSP(n, c, q, qname):
             if len(tour) < n:
                 # add a subtour elimination constraint
 
-                model.cbLazy( quicksum(model._vars[i, j] for j  in tour for i in tour) <= (len(tour)-1) )
-
+                model.cbLazy(quicksum(model._vars[i, j] for j in tour for i in tour) <= (len(tour) - 1))
 
     # Given a list of edges, finds the shortest subtour
 
@@ -51,11 +47,10 @@ def SolveTSP(n, c, q, qname):
                 break
         return cycles[lengths.index(min(lengths))]
 
-
     # Create model
     m = Model()
 
-    logname = qname +"-log"
+    logname = qname + "-log"
 
     # m.setParam('OutputFlag', False)
     m.Params.logtoconsole = 0
@@ -89,11 +84,11 @@ def SolveTSP(n, c, q, qname):
 
     for i in range(f):
         for j in range(f):
-            objective.add(q[i, j] *g[i,j])
+            objective.add(q[i, j] * g[i, j])
 
     for i in range(n):
         for j in range(n):
-            objective.addTerms(c[i, j], x[i, j], x[i,j])
+            objective.addTerms(c[i, j], x[i, j], x[i, j])
 
     m.setObjective(objective, GRB.MINIMIZE)
 
@@ -105,8 +100,6 @@ def SolveTSP(n, c, q, qname):
     m.update()
     # m.optimize()
 
-
-
     m._vars = x
     m.Params.lazyConstraints = 1
     m.optimize(subtourelim)
@@ -115,8 +108,7 @@ def SolveTSP(n, c, q, qname):
     selected = tuplelist((i, j) for i, j in vals.keys() if vals[i, j] > 0.5)
 
     tour = subtour(selected)
-    assert len(tour) == n, "The tour length is: %d" %len(tour)
-
+    assert len(tour) == n, "The tour length is: %d" % len(tour)
 
     gap = m.MIPGAP
 
@@ -131,7 +123,7 @@ def SolveTSP(n, c, q, qname):
         for j in range(n):
             finalx[i, j] = varlist[(n * i) + j]
 
-
     t1 = time.time()
     totaltime = t1 - t0
-    return m.objVal, totaltime, finalx, gap
+    status = m.status
+    return m.objVal, totaltime, finalx, gap, status

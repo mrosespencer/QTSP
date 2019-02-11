@@ -1,5 +1,3 @@
-
-
 # Make Q symmetric
 def half(q, e):
     qone = {}
@@ -48,14 +46,13 @@ def minusm(q, e, m):
     return qfour
 
 
-
 def getval(a, b, n):
     val = 0
 
-    if a == (n):
+    if a == n:
         val = (n - 1) * (n - 1) + b
 
-    elif b == (n):
+    elif b == n:
         val = a * (n - 1) + (n - 2)
 
     elif a > b:
@@ -78,10 +75,10 @@ def quadred2(q, e, n):
 
     for i in range(n - 1):
         for j in range(n - 1):
-            if i !=j:
+            if i != j:
                 for k in range(n - 1):
                     for l in range(n - 1):
-                        if k!= l:
+                        if k != l:
                             ij = getval(i, j, n)
                             kl = getval(k, l, n)
                             kn = getval(k, n, n)
@@ -89,14 +86,11 @@ def quadred2(q, e, n):
                             inn = getval(i, n, n)
                             nj = getval(n, j, n)
 
-
-
                             qfive2[ij, kl] = (
-                                q[ij, kl] - q[ij, kn] - q[ij, nl] - q[inn, kl] + q[inn, kn] + q[inn, nl] - q[nj, kl] +
-                                q[nj, kn] + q[nj, nl])
+                                    q[ij, kl] - q[ij, kn] - q[ij, nl] - q[inn, kl] + q[inn, kn] + q[inn, nl] - q[
+                                nj, kl] +
+                                    q[nj, kn] + q[nj, nl])
                     # print(qfive2[ij,kl])
-
-
 
     # Creating d
 
@@ -112,8 +106,7 @@ def quadred2(q, e, n):
 
     for i in range(e):
         for j in range(e):
-            qfive2[i,j] = qfive2[i,j] - d[i,j]
-
+            qfive2[i, j] = qfive2[i, j] - d[i, j]
 
     # Creating Q^R
     qr = {}
@@ -155,7 +148,8 @@ def quadred2(q, e, n):
                         inn = getval(i, n, n)
                         nj = getval(n, j, n)
 
-                        s += (q[ij, kn] + q[ij, nk] + q[kn, ij] - q[kn, inn] - q[kn, nj] + q[nk, ij] - q[nk, inn] - q[nk, nj])
+                        s += (q[ij, kn] + q[ij, nk] + q[kn, ij] - q[kn, inn] - q[kn, nj] + q[nk, ij] - q[nk, inn] - q[
+                            nk, nj])
             lt[i, j] = s
 
     # Creating L

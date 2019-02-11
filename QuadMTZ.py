@@ -7,7 +7,7 @@ def SolveTSP(n, c, q, qname):
     # Create model
     m = Model()
 
-    logname = qname +"-log"
+    logname = qname + "-log"
 
     # m.setParam('OutputFlag', False)
     m.Params.logtoconsole = 0
@@ -28,7 +28,7 @@ def SolveTSP(n, c, q, qname):
     for i in range(1, n):
         u[i] = m.addVar(vtype=GRB.CONTINUOUS, name='u' + str(i))
 
-   # Create edge matrix
+    # Create edge matrix
 
     # m.update()
 
@@ -49,13 +49,13 @@ def SolveTSP(n, c, q, qname):
 
     for i in range(f):
         for j in range(f):
-            objective.add(q[i,j]*e[i]*e[j])
+            objective.add(q[i, j] * e[i] * e[j])
             # objective.addTerms(q[i, j],e[i], e[j])
             # objective.addTerms(q[i,j], )
 
     for i in range(n):
         for j in range(n):
-            objective.addTerms(c[i, j], x[i, j], x[i,j])
+            objective.addTerms(c[i, j], x[i, j], x[i, j])
 
     m.setObjective(objective, GRB.MINIMIZE)
 
@@ -77,11 +77,8 @@ def SolveTSP(n, c, q, qname):
             if i != j:
                 m.addConstr(((u[i] - u[j] + ((n - 1) * x[i, j])) <= (n - 2)), "u3-" + str(i) + "_" + str(j))
 
-
-
     m.update()
     m.optimize()
-
 
     finalx = {}
     varlist = []
@@ -90,15 +87,14 @@ def SolveTSP(n, c, q, qname):
         if v.VType != GRB.CONTINUOUS:
             varlist.append(v.x)
 
-
     for i in range(n):
         for j in range(n):
-            finalx[i,j] = varlist[(n*i)+j]
+            finalx[i, j] = varlist[(n * i) + j]
 
     gap = m.MIPGAP
-
 
     t1 = time.time()
     totaltime = t1 - t0
 
-    return m.objVal, totaltime, finalx, gap
+    status = m.status
+    return m.objVal, totaltime, finalx, gap, status

@@ -94,4 +94,5 @@ def SolveTSP(n, c, q, qname):
     t1 = time.time()
     totaltime = t1 - t0
 
-    return m.objVal, totaltime, finalx, gap
+    status = m.status
+    return m.objVal, totaltime, finalx, gap, status

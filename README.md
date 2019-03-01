@@ -15,6 +15,7 @@ The outputs will be a textfile that creates the Latex files in my report, as wel
 
 
 The subfolders are organized as follows:
+
 The Cost subfolder contains the randomly generated cost files and models for the quadratic TSP. Details on creating the different random classes of quadratic costs can be found in the "MakeTSP.py" file. These are read as the cost inputs for the different quadratic models.
 
 The LinDantzig folder contains the linearized quadratic models for the Dantzig subtour elimination formulation. 

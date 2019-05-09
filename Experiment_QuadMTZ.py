@@ -1,8 +1,9 @@
 # This program runs the experimentation for the MTZ formulation of the quadratic traveling salesman problem. We
 # provide quadratic cost files with different properties (e.g. nonnegative entries, balanced positive/negative
-# entries, etc.), which are read from other files. the outputs for this program are the latex file that produces the
-# tables in my report, as well as simple text files of the objective value, gap value, Gurobi status, and the tour of
-#  the TSP. It also outputs the Gurobi log files.
+# entries, etc.), which are read from other files. We then modify the quadratic costs in the QMod file, and then send
+#  the resulting modified cost to the appropriate TSP model. The outputs for this program are the latex file that
+# produces the tables in my report, as well as simple text files of the objective value, gap value, Gurobi status,
+# and the tour of the TSP. It also outputs the Gurobi log files.
 
 import QuadMTZ
 import VerifyTour
@@ -11,7 +12,7 @@ from pathlib import Path
 import os
 
 minsize = 5
-maxsize = 31
+maxsize = 16
 
 s = False
 p = 0  # change within 0, ..., 7 for the different properties of randomly generated quadratic cost files
@@ -19,8 +20,9 @@ p = 0  # change within 0, ..., 7 for the different properties of randomly genera
 
 m = 1000
 skip = False
+adj = True
 
-properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "other", "nonnegpsd"]
+properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd", "other"]
 
 prop = properties[p]
 
@@ -120,34 +122,36 @@ for n in range(minsize, maxsize, 5):
 
         name = qname + "-" + str(0)
 
+        # We now go through each of the modifications, beginning with no modification, then symmeterizing, then upper triangular, etc.
+
         # Original Q
-        obj[0, n / 5 - 1 + t], time[0, n / 5 - 1 + t], x, gap[0, n / 5 - 1 + t], status[0, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q, name)
+        obj[0, n / 5 - 1 + t], time[0, n / 5 - 1 + t], x, gap[0, n / 5 - 1 + t], status[0, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q, name, adj)
         tour[0, n / 5 - 1 + t], full[0, n / 5 - 1 + t] = VerifyTour.check(x, n)
 
         # Symmetric Q
         name = qname + "-" + str(1)
         q1 = QMod.half(q, e)
-        obj[1, n / 5 - 1 + t], time[1, n / 5 - 1 + t], x, gap[1, n / 5 - 1 + t], status[1, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q1, name)
+        obj[1, n / 5 - 1 + t], time[1, n / 5 - 1 + t], x, gap[1, n / 5 - 1 + t], status[1, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q1, name, adj)
         tour[1, n / 5 - 1 + t], full[1, n / 5 - 1 + t] = VerifyTour.check(x, n)
         # print("Here")
 
         # Triangular Q
         name = qname + "-" + str(2)
         q2 = QMod.triangular(q, e)
-        obj[2, n / 5 - 1 + t], time[2, n / 5 - 1 + t], x, gap[2, n / 5 - 1 + t], status[2, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q2, name)
+        obj[2, n / 5 - 1 + t], time[2, n / 5 - 1 + t], x, gap[2, n / 5 - 1 + t], status[2, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q2, name, adj)
         tour[2, n / 5 - 1 + t], full[2, n / 5 - 1 + t] = VerifyTour.check(x, n)
 
         # Make Q positive semi-definite
         name = qname + "-" + str(3)
         q3 = QMod.plusm(q, e, m)
-        obj[3, n / 5 - 1 + t], time[3, n / 5 - 1 + t], x, gap[3, n / 5 - 1 + t], status[3, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q3, name)
+        obj[3, n / 5 - 1 + t], time[3, n / 5 - 1 + t], x, gap[3, n / 5 - 1 + t], status[3, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q3, name, adj)
         tour[3, n / 5 - 1 + t], full[3, n / 5 - 1 + t] = VerifyTour.check(x, n)
         obj[3, n / 5 - 1 + t] = obj[3, n / 5 - 1 + t] - n * m
 
         # Make Q negative semi-definite
         name = qname + "-" + str(4)
         q4 = QMod.minusm(q, e, m)
-        obj[4, n / 5 - 1 + t], time[4, n / 5 - 1 + t], x, gap[4, n / 5 - 1 + t], status[4, n / 5 - 1 + t]  = QuadMTZ.SolveTSP(n, c, q4, name)
+        obj[4, n / 5 - 1 + t], time[4, n / 5 - 1 + t], x, gap[4, n / 5 - 1 + t], status[4, n / 5 - 1 + t]  = QuadMTZ.SolveTSP(n, c, q4, name, adj)
         tour[4, n / 5 - 1 + t], full[4, n / 5 - 1 + t] = VerifyTour.check(x, n)
         obj[4, n / 5 - 1 + t] = obj[4, n / 5 - 1 + t] + n * m
 
@@ -160,21 +164,23 @@ for n in range(minsize, maxsize, 5):
             for j in range(n):
                 cr[i, j] = c[i, j] + lr[i, j]  # Add L cost to non-quadratic cost
 
-        obj[5, n / 5 - 1 + t], time[5, n / 5 - 1 + t], x, gap[5, n / 5 - 1 + t], status[5, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, qr, name)
+        obj[5, n / 5 - 1 + t], time[5, n / 5 - 1 + t], x, gap[5, n / 5 - 1 + t], status[5, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, qr, name, adj)
         tour[5, n / 5 - 1 + t], full[5, n / 5 - 1 + t] = VerifyTour.check(x, n)
 
         # Make QR into symmetric matrix
         name = qname + "-" + str(6)
         q6 = QMod.half(qr, e)
-        obj[6, n / 5 - 1 + t], time[6, n / 5 - 1 + t], x, gap[6, n / 5 - 1 + t], status[6, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, q6, name)
+        obj[6, n / 5 - 1 + t], time[6, n / 5 - 1 + t], x, gap[6, n / 5 - 1 + t], status[6, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, q6, name, adj)
         tour[6, n / 5 - 1 + t], full[6, n / 5 - 1 + t] = VerifyTour.check(x, n)
 
         # Make QR into upper triangular
         name = qname + "-" + str(7)
 
         q7 = QMod.triangular(qr, e)
-        obj[7, n / 5 - 1 + t], time[7, n / 5 - 1 + t], x, gap[7, n / 5 - 1 + t], status[7, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, q7, name)
+        obj[7, n / 5 - 1 + t], time[7, n / 5 - 1 + t], x, gap[7, n / 5 - 1 + t], status[7, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, q7, name, adj)
         tour[7, n / 5 - 1 + t], full[7, n / 5 - 1 + t] = VerifyTour.check(x, n)
+
+        # Print results to files
 
         objline = []
         timeline = []

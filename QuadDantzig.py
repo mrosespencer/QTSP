@@ -1,8 +1,9 @@
 from gurobipy import *
 import time
+import GetVal
 
 
-def SolveTSP(n, c, q, qname):
+def SolveTSP(n, c, q, qname, adj):
     t0 = time.time()
 
     # Callback - use lazy constraints to eliminate sub-tours
@@ -71,24 +72,33 @@ def SolveTSP(n, c, q, qname):
     e = [x[i, j] for i in range(n) for j in range(n) if i != j]
     f = len(e)
 
-    # print(e)
-    g = {}
-
-    for i in range(f):
-        for j in range(f):
-            g[i, j] = (e[i] * e[j])
-
-    # Set objective
-
     objective = QuadExpr()
+    if adj == False:
+        # print(e)
+        g = {}
 
-    for i in range(f):
-        for j in range(f):
-            objective.add(q[i, j] * g[i, j])
+        for i in range(f):
+            for j in range(f):
+                g[i, j] = (e[i] * e[j])
 
+        # Set objective
+
+        for i in range(f):
+            for j in range(f):
+                objective.add(q[i, j] * g[i, j])
+
+    else:
+        for i in range(n):
+            for j in range(n):
+                if i != j:
+                    for k in range(n):
+                        if j != k:
+                            ij = GetVal.getval(i, j, n)
+                            jk = GetVal.getval(j, k, n)
+                            objective.addTerms(q[ij, jk], x[i, j], x[j,k])
     for i in range(n):
         for j in range(n):
-            objective.addTerms(c[i, j], x[i, j], x[i, j])
+            objective.addTerms(c[i, j], x[i, j])
 
     m.setObjective(objective, GRB.MINIMIZE)
 

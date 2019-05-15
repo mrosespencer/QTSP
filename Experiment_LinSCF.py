@@ -49,8 +49,8 @@ properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ran
 
 prop = properties[p]
 
-filename = "SCFLin%s.txt" % prop
-file = open(filename, 'w')
+filename = "SCFLin%s" % prop
+file = open(filename+".txt", 'w')
 
 file.write("\\documentclass[11pt]{article}\n")
 file.write(

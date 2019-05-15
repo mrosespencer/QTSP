@@ -49,8 +49,8 @@ properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ran
 
 prop = properties[p]
 
-filename = "DantzigLin%s.txt" % prop
-file = open(filename, 'w')
+filename = "DantzigLin%s" % prop
+file = open(filename+".txt", 'w')
 
 file.write("\\documentclass[11pt]{article}\n")
 file.write(

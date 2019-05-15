@@ -20,14 +20,14 @@ p = 0  # change within 0, ..., 7 for the different properties of randomly genera
 
 m = 1000
 skip = False
-adj = True
+adj = False
 
 properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd", "other"]
 
 prop = properties[p]
 
-filename = "MTZ_%s.txt" % prop
-file = open(filename, 'w')
+filename = "MTZ_%s" % prop
+file = open(filename+".txt", 'w')
 
 file.write("\\documentclass[11pt]{article}\n")
 file.write(

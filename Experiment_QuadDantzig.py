@@ -10,9 +10,11 @@ import VerifyTour
 import QMod
 from pathlib import Path
 import os
+import GetVal
+import PrintM
 
 minsize = 5
-maxsize = 16
+maxsize = 6
 
 s = False
 p = 0  # change within 0, ..., 7 for the different properties of randomly generated quadratic cost files
@@ -26,8 +28,8 @@ properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ran
 
 prop = properties[p]
 
-filename = "Dantzig_%s.txt" % prop
-file = open(filename, 'w')
+filename = "Dantzig_%s" % prop
+file = open(filename+".txt", 'w')
 
 file.write("\\documentclass[11pt]{article}\n")
 file.write("\\usepackage{amsmath, amssymb, amsthm, amsfonts,multirow,booktabs,siunitx, lscape, multirow, rotating, booktabs}\n")
@@ -84,6 +86,8 @@ for n in range(minsize, maxsize, 5):
         for i in range(e):
             for j in range(e):
                 q[i, j] = arr[i][j]
+
+
 
         name = "C" + str(n) + "-" + str(t)
 
@@ -142,14 +146,14 @@ for n in range(minsize, maxsize, 5):
         q3 = QMod.plusm(q, e, m)
         obj[3, n / 5 - 1 + t], time[3, n / 5 - 1 + t], x, gap[3, n / 5 - 1 + t], status[3, n / 5 - 1 + t] = QuadDantzig.SolveTSP(n, c, q3, name, adj)
         tour[3, n / 5 - 1 + t], full[3, n / 5 - 1 + t] = VerifyTour.check(x, n)
-        obj[3, n / 5 - 1 + t] = obj[3, n / 5 - 1 + t] - n * m
+        # obj[3, n / 5 - 1 + t] = obj[3, n / 5 - 1 + t] - n * m
 
         # Make Q negative semi-definite
         name = qname + "-" + str(4)
         q4 = QMod.minusm(q, e, m)
         obj[4, n / 5 - 1 + t], time[4, n / 5 - 1 + t], x, gap[4, n / 5 - 1 + t], status[4, n / 5 - 1 + t] = QuadDantzig.SolveTSP(n, c, q4, name, adj)
         tour[4, n / 5 - 1 + t], full[4, n / 5 - 1 + t] = VerifyTour.check(x, n)
-        obj[4, n / 5 - 1 + t] = obj[4, n / 5 - 1 + t] + n * m
+        # obj[4, n / 5 - 1 + t] = obj[4, n / 5 - 1 + t] + n * m
 
         # Node N Removal
         name = qname + "-" + str(5)

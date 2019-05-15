@@ -12,7 +12,7 @@ from pathlib import Path
 import os
 
 minsize = 5
-maxsize = 16
+maxsize = 6
 
 s = False
 p = 0  # change within 0, ..., 7 for the different properties of randomly generated quadratic cost files
@@ -20,14 +20,14 @@ p = 0  # change within 0, ..., 7 for the different properties of randomly genera
 
 m = 1000
 skip = False
-adj = True
+adj = False
 
 properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd", "other"]
 
 prop = properties[p]
 
-filename = "SCF_%s.txt" % prop
-file = open(filename, 'w')
+filename = "SCF_%s" % prop
+file = open(filename+".txt", 'w')
 
 file.write("\\documentclass[11pt]{article}\n")
 file.write(

@@ -48,18 +48,15 @@ def SolveTSP(n, c, q, qname, adj):
 
     objective = QuadExpr()
     if adj == False:
-        # print(e)
-        g = {}
-
-        for i in range(f):
-            for j in range(f):
-                g[i, j] = (e[i] * e[j])
-
-        # Set objective
-
-        for i in range(f):
-            for j in range(f):
-                objective.add(q[i, j] * g[i, j])
+        for i in range(n):
+            for j in range(n):
+                if i != j:
+                    for k in range(n):
+                        for l in range(n):
+                            if k != l:
+                                ij = GetVal.getval(i, j, n)
+                                kl = GetVal.getval(k, l, n)
+                                objective.addTerms(q[ij, kl], x[i, j], x[k, l])
 
     else:
         for i in range(n):

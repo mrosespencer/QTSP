@@ -15,211 +15,220 @@ minsize = 5
 maxsize = 16
 
 s = False
-p = 0  # change within 0, ..., 7 for the different properties of randomly generated quadratic cost files
+# p = 0  # change within 0, ..., 7 for the different properties of randomly generated quadratic cost files
 # details on creation of the quadratic costs can be found in MakeTSP
 
-m = 1000
-skip = False
-adj = False
+for p in range(8):
+    # Parameters
 
-properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd", "other"]
+    # Plus/minus M value
+    m = 10000
 
-prop = properties[p]
+    # Presolve value: 0 = off, -1 = default
+    presolve = 0
 
-filename = "MTZ_%s" % prop
-file = open(filename+".txt", 'w')
+    # Used for testing purposes only
+    skip = False
+    adj = False
 
-file.write("\\documentclass[11pt]{article}\n")
-file.write(
-    "\\usepackage{amsmath, amssymb, amsthm, amsfonts,multirow,booktabs,siunitx, lscape, multirow, rotating, booktabs}\n")
-file.write("\\begin{document}\n")
-file.write("\\begin{table}[h] \n")
-file.write("\\centering\n ")
-file.write("\\begin{tabular}{ @{} ccccccccc @{}} \toprule\n")
-file.write(
-    "Size &Original & Sym & Upper Triangular & PSD & NSD & QR & Sym QR & Upper Triangular QR \\\\ \\midrule \n")
+    properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd", "other"]
 
-objfilename = "%s-obj.txt" % filename
-timefilename = "%s-time.txt" % filename
-tourfilename = "%s-tour.txt" % filename
-gapfilename = "%s-gap.txt" % filename
-statusfilename = "%s-status.txt" % filename
+    prop = properties[p]
 
-objfile = open(objfilename, "w")
-timefile = open(timefilename, "w")
-tourfile = open(tourfilename, "w")
-gapfile = open(gapfilename, "w")
-statusfile = open(statusfilename, "w")
+    filename = "MTZ_%s" % prop
+    file = open(filename+".txt", 'w')
 
-for n in range(minsize, maxsize, 5):
+    file.write("\\documentclass[11pt]{article}\n")
+    file.write(
+        "\\usepackage{amsmath, amssymb, amsthm, amsfonts,multirow,booktabs,siunitx, lscape, multirow, rotating, booktabs}\n")
+    file.write("\\begin{document}\n")
+    file.write("\\begin{table}[h] \n")
+    file.write("\\centering\n ")
+    file.write("\\begin{tabular}{ @{} ccccccccc @{}} \toprule\n")
+    file.write(
+        "Size &Original & Sym & Upper Triangular & PSD & NSD & QR & Sym QR & Upper Triangular QR \\\\ \\midrule \n")
 
-    if n < 15:
-        trials = 5
-    else:
-        trials = 1
+    objfilename = "%s-obj.txt" % filename
+    timefilename = "%s-time.txt" % filename
+    tourfilename = "%s-tour.txt" % filename
+    gapfilename = "%s-gap.txt" % filename
+    statusfilename = "%s-status.txt" % filename
 
-    if p == 7:
-        trials = 1
-    for t in range(trials):
+    objfile = open(objfilename, "w")
+    timefile = open(timefilename, "w")
+    tourfile = open(tourfilename, "w")
+    gapfile = open(gapfilename, "w")
+    statusfile = open(statusfilename, "w")
 
-        e = n * (n - 1)
+    for n in range(minsize, maxsize, 5):
 
-        qname = "Q" + str(n) + str(prop) + "-" + str(t)
+        if n < 15:
+            trials = 5
+        else:
+            trials = 1
 
-        qcname = "%s.txt" % qname
+        if p == 7:
+            trials = 1
+        for t in range(trials):
 
-        data_q = Path("Cost/" + qcname)
+            e = n * (n - 1)
 
-        f = open(os.path.join('Cost', qcname), "r")
+            qname = "Q" + str(n) + str(prop) + "-" + str(t)
 
-        # Read quadratic cost matrix from file
-        arr = []
-        for line in f:
-            line = line.split()
+            qcname = "%s.txt" % qname
 
-            if line:
-                line = [int(float(i)) for i in line]
-                arr.append(line)
+            data_q = Path("Cost/" + qcname)
 
-        f.close()
+            f = open(os.path.join('Cost', qcname), "r")
 
-        # Convert to array
-        q = {}
-        for i in range(e):
-            for j in range(e):
-                q[i, j] = arr[i][j]
+            # Read quadratic cost matrix from file
+            arr = []
+            for line in f:
+                line = line.split()
 
-        name = "C" + str(n) + "-" + str(t)
+                if line:
+                    line = [int(float(i)) for i in line]
+                    arr.append(line)
 
-        cname = "%s.txt" % name
-        data_c = Path("Cost/" + cname)
-        # fc = open(data_c, "r")
-        fc = open(os.path.join('Cost', cname), "r")
+            f.close()
 
-        # Read linear cost from file
+            # Convert to array
+            q = {}
+            for i in range(e):
+                for j in range(e):
+                    q[i, j] = arr[i][j]
 
-        arrc = []
-        for line in fc:
-            line = line.split()
+            name = "C" + str(n) + "-" + str(t)
 
-            if line:
-                line = [int(float(i)) for i in line]
-                arrc.append(line)
+            cname = "%s.txt" % name
+            data_c = Path("Cost/" + cname)
+            # fc = open(data_c, "r")
+            fc = open(os.path.join('Cost', cname), "r")
 
-        fc.close()
+            # Read linear cost from file
 
-        c = {}
-        for i in range(n):
-            for j in range(n):
-                c[i, j] = arrc[i][j]
+            arrc = []
+            for line in fc:
+                line = line.split()
 
-        obj = {}
-        time = {}
-        tour = {}
-        full = {}
-        gap = {}
-        status = {}
+                if line:
+                    line = [int(float(i)) for i in line]
+                    arrc.append(line)
 
-        name = qname + "-" + str(0)
+            fc.close()
 
-        # We now go through each of the modifications, beginning with no modification, then symmeterizing, then upper triangular, etc.
+            c = {}
+            for i in range(n):
+                for j in range(n):
+                    c[i, j] = arrc[i][j]
 
-        # Original Q
-        obj[0, n / 5 - 1 + t], time[0, n / 5 - 1 + t], x, gap[0, n / 5 - 1 + t], status[0, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q, name, adj)
-        tour[0, n / 5 - 1 + t], full[0, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            obj = {}
+            time = {}
+            tour = {}
+            full = {}
+            gap = {}
+            status = {}
 
-        # Symmetric Q
-        name = qname + "-" + str(1)
-        q1 = QMod.half(q, e)
-        obj[1, n / 5 - 1 + t], time[1, n / 5 - 1 + t], x, gap[1, n / 5 - 1 + t], status[1, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q1, name, adj)
-        tour[1, n / 5 - 1 + t], full[1, n / 5 - 1 + t] = VerifyTour.check(x, n)
-        # print("Here")
+            name = qname + "-" + str(0)
 
-        # Triangular Q
-        name = qname + "-" + str(2)
-        q2 = QMod.triangular(q, e)
-        obj[2, n / 5 - 1 + t], time[2, n / 5 - 1 + t], x, gap[2, n / 5 - 1 + t], status[2, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q2, name, adj)
-        tour[2, n / 5 - 1 + t], full[2, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            # We now go through each of the modifications, beginning with no modification, then symmeterizing, then upper triangular, etc.
 
-        # Make Q positive semi-definite
-        name = qname + "-" + str(3)
-        q3 = QMod.plusm(q, e, m)
-        obj[3, n / 5 - 1 + t], time[3, n / 5 - 1 + t], x, gap[3, n / 5 - 1 + t], status[3, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q3, name, adj)
-        tour[3, n / 5 - 1 + t], full[3, n / 5 - 1 + t] = VerifyTour.check(x, n)
-        obj[3, n / 5 - 1 + t] = obj[3, n / 5 - 1 + t] - n * m
+            # Original Q
+            obj[0, n / 5 - 1 + t], time[0, n / 5 - 1 + t], x, gap[0, n / 5 - 1 + t], status[0, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q, name, adj, presolve)
+            tour[0, n / 5 - 1 + t], full[0, n / 5 - 1 + t] = VerifyTour.check(x, n)
 
-        # Make Q negative semi-definite
-        name = qname + "-" + str(4)
-        q4 = QMod.minusm(q, e, m)
-        obj[4, n / 5 - 1 + t], time[4, n / 5 - 1 + t], x, gap[4, n / 5 - 1 + t], status[4, n / 5 - 1 + t]  = QuadMTZ.SolveTSP(n, c, q4, name, adj)
-        tour[4, n / 5 - 1 + t], full[4, n / 5 - 1 + t] = VerifyTour.check(x, n)
-        obj[4, n / 5 - 1 + t] = obj[4, n / 5 - 1 + t] + n * m
+            # Symmetric Q
+            name = qname + "-" + str(1)
+            q1 = QMod.half(q, e)
+            obj[1, n / 5 - 1 + t], time[1, n / 5 - 1 + t], x, gap[1, n / 5 - 1 + t], status[1, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q1, name, adj, presolve)
+            tour[1, n / 5 - 1 + t], full[1, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            # print("Here")
 
-        # Node N Removal
-        name = qname + "-" + str(5)
-        qr, lr = QMod.quadred2(q, e, n)
+            # Triangular Q
+            name = qname + "-" + str(2)
+            q2 = QMod.triangular(q, e)
+            obj[2, n / 5 - 1 + t], time[2, n / 5 - 1 + t], x, gap[2, n / 5 - 1 + t], status[2, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q2, name, adj, presolve)
+            tour[2, n / 5 - 1 + t], full[2, n / 5 - 1 + t] = VerifyTour.check(x, n)
 
-        cr = {}
-        for i in range(n):
-            for j in range(n):
-                cr[i, j] = c[i, j] + lr[i, j]  # Add L cost to non-quadratic cost
+            # Make Q positive semi-definite
+            name = qname + "-" + str(3)
+            q3 = QMod.plusm(q, e, m)
+            obj[3, n / 5 - 1 + t], time[3, n / 5 - 1 + t], x, gap[3, n / 5 - 1 + t], status[3, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, c, q3, name, adj, presolve)
+            tour[3, n / 5 - 1 + t], full[3, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            obj[3, n / 5 - 1 + t] += -n * m
 
-        obj[5, n / 5 - 1 + t], time[5, n / 5 - 1 + t], x, gap[5, n / 5 - 1 + t], status[5, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, qr, name, adj)
-        tour[5, n / 5 - 1 + t], full[5, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            # Make Q negative semi-definite
+            name = qname + "-" + str(4)
+            q4 = QMod.minusm(q, e, m)
+            obj[4, n / 5 - 1 + t], time[4, n / 5 - 1 + t], x, gap[4, n / 5 - 1 + t], status[4, n / 5 - 1 + t]  = QuadMTZ.SolveTSP(n, c, q4, name, adj, presolve)
+            tour[4, n / 5 - 1 + t], full[4, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            obj[4, n / 5 - 1 + t] += n * m
 
-        # Make QR into symmetric matrix
-        name = qname + "-" + str(6)
-        q6 = QMod.half(qr, e)
-        obj[6, n / 5 - 1 + t], time[6, n / 5 - 1 + t], x, gap[6, n / 5 - 1 + t], status[6, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, q6, name, adj)
-        tour[6, n / 5 - 1 + t], full[6, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            # Node N Removal
+            name = qname + "-" + str(5)
+            qr, lr = QMod.quadred2(q, e, n)
 
-        # Make QR into upper triangular
-        name = qname + "-" + str(7)
+            cr = {}
+            for i in range(n):
+                for j in range(n):
+                    cr[i, j] = c[i, j] + lr[i, j]  # Add L cost to non-quadratic cost
 
-        q7 = QMod.triangular(qr, e)
-        obj[7, n / 5 - 1 + t], time[7, n / 5 - 1 + t], x, gap[7, n / 5 - 1 + t], status[7, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, q7, name, adj)
-        tour[7, n / 5 - 1 + t], full[7, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            obj[5, n / 5 - 1 + t], time[5, n / 5 - 1 + t], x, gap[5, n / 5 - 1 + t], status[5, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, qr, name, adj, presolve)
+            tour[5, n / 5 - 1 + t], full[5, n / 5 - 1 + t] = VerifyTour.check(x, n)
 
-        # Print results to files
+            # Make QR into symmetric matrix
+            name = qname + "-" + str(6)
+            q6 = QMod.half(qr, e)
+            obj[6, n / 5 - 1 + t], time[6, n / 5 - 1 + t], x, gap[6, n / 5 - 1 + t], status[6, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, q6, name, adj, presolve)
+            tour[6, n / 5 - 1 + t], full[6, n / 5 - 1 + t] = VerifyTour.check(x, n)
 
-        objline = []
-        timeline = []
-        tours = []
-        gapline = []
-        statusline = []
-        for i in range(8):
-            objline.append(obj[i, n / 5 - 1 + t])
-            a = time[i, n / 5 - 1 + t]
-            time[i, n / 5 - 1 + t] = round(a, 3)
-            timeline.append(time[i, n / 5 - 1 + t])
-            tours.append(full[i, n / 5 - 1 + t])
-            tourfile.write(str(tour[i, n / 5 - 1 + t]) + "\n")
-            gapline.append(gap[i, n / 5 - 1 + t])
-            statusline.append(status[i, n / 5 - 1 + t])
-        print(objline)
-        print(timeline)
-        print(tours)
-        print(statusline)
+            # Make QR into upper triangular
+            name = qname + "-" + str(7)
 
-        file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
-            n, obj[0, n / 5 - 1 + t], time[1, n / 5 - 1 + t], time[2, n / 5 - 1 + t],
-            time[3, n / 5 - 1 + t],
-            time[4, n / 5 - 1 + t], time[5, n / 5 - 1 + t],
-            time[6, n / 5 - 1 + t], time[7, n / 5 - 1 + t]))
+            q7 = QMod.triangular(qr, e)
+            obj[7, n / 5 - 1 + t], time[7, n / 5 - 1 + t], x, gap[7, n / 5 - 1 + t], status[7, n / 5 - 1 + t] = QuadMTZ.SolveTSP(n, cr, q7, name, adj, presolve)
+            tour[7, n / 5 - 1 + t], full[7, n / 5 - 1 + t] = VerifyTour.check(x, n)
 
-        objfile.write(str(objline) + "\n")
-        timefile.write(str(timeline) + "\n")
-        tourfile.write(str(tours) + "\n")
-        gapfile.write(str(gapline) + "\n")
-        statusfile.write(str(statusline) + "\n")
+            # Print results to files
 
-file.write("\\end{tabular}\n } \n")
-file.write("\\end{sidewaystable}\n")
-file.write("\\end{document}")
+            objline = []
+            timeline = []
+            tours = []
+            gapline = []
+            statusline = []
+            for i in range(8):
+                objline.append(obj[i, n / 5 - 1 + t])
+                a = time[i, n / 5 - 1 + t]
+                time[i, n / 5 - 1 + t] = round(a, 3)
+                timeline.append(time[i, n / 5 - 1 + t])
+                tours.append(full[i, n / 5 - 1 + t])
+                tourfile.write(str(tour[i, n / 5 - 1 + t]) + "\n")
+                gapline.append(gap[i, n / 5 - 1 + t])
+                statusline.append(status[i, n / 5 - 1 + t])
+            print(objline)
+            print(timeline)
+            print(tours)
+            print(statusline)
 
-file.close()
-objfile.close()
-timefile.close()
-tourfile.close()
-gapfile.close()
-statusfile.close()
+            file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
+                n, obj[0, n / 5 - 1 + t], time[1, n / 5 - 1 + t], time[2, n / 5 - 1 + t],
+                time[3, n / 5 - 1 + t],
+                time[4, n / 5 - 1 + t], time[5, n / 5 - 1 + t],
+                time[6, n / 5 - 1 + t], time[7, n / 5 - 1 + t]))
+
+            objfile.write(str(objline) + "\n")
+            timefile.write(str(timeline) + "\n")
+            tourfile.write(str(tours) + "\n")
+            gapfile.write(str(gapline) + "\n")
+            statusfile.write(str(statusline) + "\n")
+
+    file.write("\\end{tabular}\n } \n")
+    file.write("\\end{sidewaystable}\n")
+    file.write("\\end{document}")
+
+    file.close()
+    objfile.close()
+    timefile.close()
+    tourfile.close()
+    gapfile.close()
+    statusfile.close()

@@ -3,7 +3,7 @@ import time
 import GetVal
 
 
-def SolveTSP(n, c, q, qname, adj):
+def SolveTSP(n, c, q, qname, adj, presolve):
     t0 = time.time()
     # Create model
     m = Model()
@@ -17,6 +17,11 @@ def SolveTSP(n, c, q, qname, adj):
     m.setParam(GRB.Param.TimeLimit, 10800.0)
 
     m.setParam("logfile", "%s.txt" % logname)
+
+
+    #Turn off presolve
+    m.setParam("Presolve", presolve)
+    m.setParam("PreQLinearize", presolve)
 
     # Create variables
     x = {}
@@ -53,15 +58,15 @@ def SolveTSP(n, c, q, qname, adj):
                                 kl = GetVal.getval(k, l, n)
                                 objective.addTerms(q[ij, kl], x[i, j], x[k, l])
 
-    # else:
-    #     for i in range(n):
-    #         for j in range(n):
-    #             if i != j:
-    #                 for k in range(n):
-    #                     if j != k:
-    #                         ij = GetVal.getval(i, j, n)
-    #                         jk = GetVal.getval(j, k, n)
-    #                         objective.addTerms(q[ij, jk], x[i, j], x[j, k])
+    else:
+        for i in range(n):
+            for j in range(n):
+                if i != j:
+                    for k in range(n):
+                        if j != k:
+                            ij = GetVal.getval(i, j, n)
+                            jk = GetVal.getval(j, k, n)
+                            objective.addTerms(q[ij, jk], x[i, j], x[j, k])
     for i in range(n):
         for j in range(n):
             objective.addTerms(c[i, j], x[i, j])

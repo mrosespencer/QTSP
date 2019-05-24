@@ -211,7 +211,7 @@ for p in range(8):
             print(statusline)
 
             file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
-                n, obj[0, n / 5 - 1 + t], time[1, n / 5 - 1 + t], time[2, n / 5 - 1 + t],
+                n, time[0, n / 5 - 1 + t], time[1, n / 5 - 1 + t], time[2, n / 5 - 1 + t],
                 time[3, n / 5 - 1 + t],
                 time[4, n / 5 - 1 + t], time[5, n / 5 - 1 + t],
                 time[6, n / 5 - 1 + t], time[7, n / 5 - 1 + t]))
@@ -223,7 +223,7 @@ for p in range(8):
             statusfile.write(str(statusline) + "\n")
 
     file.write("\\end{tabular}\n } \n")
-    file.write("\\end{sidewaystable}\n")
+    file.write("\\end{table}\n")
     file.write("\\end{document}")
 
     file.close()

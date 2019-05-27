@@ -2,35 +2,12 @@ from random import *
 import QMod
 
 minsize = 5
-maxsize = 31
+maxsize = 6
 s = False
 
 properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd"]
 
 
-def Makecost(n, s):
-    e = n * (n - 1)
-
-    # random.seed(0)
-
-    q = {}
-
-    symsize = 0
-    for i in range(n - 1):
-        symsize += i
-
-    if s == False:
-        for i in range(e):
-            for j in range(e):
-                q[i, j] = randint(1, 10)
-                # q[i,j] = 1
-            # q[i,i] = 0
-    else:
-        for i in range(symsize):
-            for j in range(e):
-                q[i, j] = randint(0, 10)
-
-    return q
 
 
 def MakeQ(n, s, p, t):
@@ -112,60 +89,6 @@ def MakeQ(n, s, p, t):
     return q
 
 
-def MakeD(n, s):
-    d = {}
-
-    for i in range(n):
-        for j in range(n):
-            for k in range(n):
-                for l in range(n):
-                    # d[i,j,k,l] = randint(0,10)
-                    d[i, j, k, l] = 1
-            d[i, j, i, j] = 0
-        d[i, i, i, i] = 0
-
-    return d
-
-
-def MakeQ2(n, s):
-    q2 = {}
-
-    for i in range(n):
-        for j in range(n):
-            for k in range(n):
-                for l in range(n):
-                    ij = QMod.getval(i, j, n)
-                    kl = QMod.getval(k, l, n)
-
-                    if i == k:
-                        if j != l:
-                            q2[ij, kl] = 0
-                        else:
-                            q2[ij, kl] = randint(1, 10)
-                    else:
-                        if j == l:
-                            q2[ij, kl] = 0
-                        else:
-                            q2[ij, kl] = randint(1, 10)
-            q2[ij, ij] = 0
-
-    return q2
-
-
-def MakeC(n, s):
-    c = {}
-    for i in range(n):
-        for j in range(i, n):
-            c[i, j] = randint(1, 10)
-            # c[i,j] = 1
-            if s == True:
-                c[j, i] = c[i, j]
-            else:
-                c[j, i] = randint(1, 10)
-                # c[j, i] = 1
-
-        c[i, i] = 0
-    return c
 
 
 def MakeCmat(n, t):
@@ -192,12 +115,14 @@ def MakeCmat(n, t):
 
 
 for n in range(minsize, maxsize, 5):
-    if n < 15:
+    if n == 5:
+        trials = 100
+    elif n == 10:
         trials = 5
     else:
         trials = 1
 
-    for t in range(trials):
-        for p in range(7, 8):
+    for t in range(5, 100):
+        for p in range(8):
             MakeQ(n, s, properties[p], t)
         MakeCmat(n, t)

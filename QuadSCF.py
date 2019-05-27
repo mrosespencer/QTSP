@@ -16,7 +16,10 @@ def SolveTSP(n, c, q, qname, adj, presolve):
 
     m.setParam(GRB.Param.TimeLimit, 10800.0)
 
-    m.setParam("logfile", "%s.txt" % logname)
+    if n <10:
+        m.setParam("logfile","")
+    else:
+        m.setParam("logfile", "%s.txt" % logname)
 
 
     #Turn off presolve

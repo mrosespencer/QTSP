@@ -20,7 +20,7 @@ def getval(a, b, n):
 
 
 
-def SolveTSP(n, c, q, qname):
+def SolveTSP(n, c, q, qname, presolve):
     t0 = time.time()
 
     # Callback - use lazy constraints to eliminate sub-tours
@@ -78,8 +78,14 @@ def SolveTSP(n, c, q, qname):
     # Set time limit to 3 hours
 
     m.setParam(GRB.Param.TimeLimit, 10800.0)
+    if n <10:
+        m.setParam("logfile","")
+    else:
+        m.setParam("logfile", "%s.txt" % logname)
 
-    m.setParam("logfile", "%s.txt" % logname)
+    #Turn off presolve
+    m.setParam("Presolve", presolve)
+    m.setParam("PreQLinearize", presolve)
 
     # Create variables
     x = {}

@@ -38,187 +38,214 @@ import LinDantzig.DantzigLinB10
 
 
 minsize = 5
-maxsize = 31
+maxsize = 11
 
-s = False
-p = 3 # we use only balanced Q for this experiment
-m = 1000
+
+# Presolve value: 0 = off, -1 = default
+presolve = 0
+
+# Used for testing purposes only
 skip = False
+adj = False
+s = False
 
-properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "other", "nonnegpsd"]
-
-prop = properties[p]
-
-filename = "DantzigLin%s" % prop
-file = open(filename+".txt", 'w')
-
-file.write("\\documentclass[11pt]{article}\n")
-file.write(
-    "\\usepackage{amsmath, amssymb, amsthm, amsfonts,multirow,booktabs,siunitx, lscape, multirow, rotating, booktabs}\n")
-file.write("\\begin{document}\n")
-file.write("\\begin{table}[h] \n")
-file.write("\\centering\n \def\\arraystretch{1.3}\n")
-file.write("\\resizebox{\\textwidth}{!}{\n")
-file.write("\\begin{tabular}{ @{} ccccc @{}} \\toprule\n")
-file.write(
-    "Size & Quadratic & Binary & Classic & McCormick & Base 2 & Base 10 \\\\ \\midrule \n")
-
-objfilename = "DantzigLin%s-obj.txt" % prop
-timefilename = "DantzigLin%s-time.txt" % prop
-tourfilename = "DantzigLin%s-tour.txt" % prop
-gapfilename = "DantzigLin%s-gap.txt" % prop
-statusfilename = "DantzigLin%s-status.txt" % prop
-
-objfile = open(objfilename, "w")
-timefile = open(timefilename, "w")
-tourfile = open(tourfilename, "w")
-gapfile = open(gapfilename, "w")
-statusfile = open(statusfilename, "w")
+# Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
+fivetrials = 100
+tentrials = 5
 
 
-for n in range(minsize, maxsize, 5):
+# p = 3 # we use only balanced Q for this experiment
+m = 10000
+for p in range(8):
 
-    if n < 15:
-        trials = 5
-    else:
-        trials = 1
+    properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd",  "other"]
 
-    if p ==7:
-        trials = 1
+    prop = properties[p]
 
-    for t in range(trials):
+    filename = "DantzigLin%s" % prop
+    file = open(filename+".txt", 'w')
 
-        e = n * (n - 1)
+    file.write("\\documentclass[11pt]{article}\n")
+    file.write(
+        "\\usepackage{amsmath, amssymb, amsthm, amsfonts,multirow,booktabs,siunitx, lscape, multirow, rotating, booktabs}\n")
+    file.write("\\begin{document}\n")
+    file.write("\\begin{table}[h] \n")
+    file.write("\\centering\n \def\\arraystretch{1.3}\n")
+    file.write("\\resizebox{\\textwidth}{!}{\n")
+    file.write("\\begin{tabular}{ @{} ccccc @{}} \\toprule\n")
+    file.write(
+        "Size & Quadratic & Binary & Classic & McCormick & Base 2 & Base 10 \\\\ \\midrule \n")
 
-        qname = "Q" + str(n) + str(prop) + "-" + str(t)
+    objfilename = "DantzigLin%s-obj.txt" % prop
+    timefilename = "DantzigLin%s-time.txt" % prop
+    tourfilename = "DantzigLin%s-tour.txt" % prop
+    gapfilename = "DantzigLin%s-gap.txt" % prop
+    statusfilename = "DantzigLin%s-status.txt" % prop
 
-        qcname = "%s.txt" % qname
+    objfile = open(objfilename, "w")
+    timefile = open(timefilename, "w")
+    tourfile = open(tourfilename, "w")
+    gapfile = open(gapfilename, "w")
+    statusfile = open(statusfilename, "w")
 
-        f = open(os.path.join('Cost', qcname), "r")
+    obj = {}
+    time = {}
+    tour = {}
+    full = {}
+    gap = {}
+    status = {}
 
-        # Read quadratic cost matrix from file
-        arr = []
-        for line in f:
-            line = line.split()
+    count = 0
 
-            if line:
-                line = [int(float(i)) for i in line]
-                arr.append(line)
+    for n in range(minsize, maxsize, 5):
 
-        f.close()
+        if p == 8:
+            trials = 1
+        elif n == 5:
+            trials = fivetrials
+        elif n == 10:
+            trials = tentrials
+        else:
+            trials = 1
 
-        # Convert to array
-        q = {}
-        for i in range(e):
-            for j in range(e):
-                q[i, j] = arr[i][j]
+        for t in range(trials):
 
-        name = "C" + str(n) + "-" + str(t)
+            e = n * (n - 1)
+
+            qname = "Q" + str(n) + str(prop) + "-" + str(t)
+
+            qcname = "%s.txt" % qname
+
+            f = open(os.path.join('Cost', qcname), "r")
+
+            # Read quadratic cost matrix from file
+            arr = []
+            for line in f:
+                line = line.split()
+
+                if line:
+                    line = [int(float(i)) for i in line]
+                    arr.append(line)
+
+            f.close()
+
+            # Convert to array
+            q = {}
+            for i in range(e):
+                for j in range(e):
+                    q[i, j] = arr[i][j]
+
+            name = "C" + str(n) + "-" + str(t)
 
 
-        cname = "%s.txt" % name
-        fc = open(os.path.join('Cost', cname), "r")
-
-
-
-        # Read linear cost from file
-
-        arrc = []
-        for line in fc:
-            line = line.split()
-
-            if line:
-                line = [int(float(i)) for i in line]
-                arrc.append(line)
-
-        fc.close()
-
-        c = {}
-        for i in range(n):
-            for j in range(n):
-                c[i, j] = arrc[i][j]
-
-    # We choose to add the quadratic cost associated with a single edge to the linear cost so that the diagonals are 0
-
-        for i in range(n):
-            for j in range(n):
-                ij = GetVal.getval(i,j,n)
-                c[i, j] = c[i, j] + q[ij,ij]
-                q[ij,ij] = 0
-        obj = {}
-        time = {}
-        tour = {}
-        full = {}
-        gap = {}
-        status = {}
+            cname = "%s.txt" % name
+            fc = open(os.path.join('Cost', cname), "r")
 
 
 
-        # Triangular Q
-        # name = qname + "-" + str(2)
-        q2 = QMod.triangular(q, e)
+            # Read linear cost from file
 
-        # MTZ Formulation
-        obj[0, n / 5 - 1 + t], time[0, n / 5 - 1 + t], x, gap[0, n / 5 - 1 + t], status[0, n / 5 - 1 + t] = QuadDantzig.SolveTSP(n, c, q2, name)
-        tour[0, n / 5 - 1 + t], full[0, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            arrc = []
+            for line in fc:
+                line = line.split()
 
-        # Binary replacement
-        obj[1, n / 5 - 1 + t], time[1, n / 5 - 1 + t], x, gap[1, n / 5 - 1 + t], status[1, n / 5 - 1 + t] = LinDantzig.DantzigLinBI.SolveTSP(n, c, q2, name)
-        tour[1, n / 5 - 1 + t], full[1, n / 5 - 1 + t] = VerifyTour.check(x, n)
+                if line:
+                    line = [int(float(i)) for i in line]
+                    arrc.append(line)
 
-        # Classic
-        obj[2, n / 5 - 1 + t], time[2, n / 5 - 1 + t], x, gap[2, n / 5 - 1 + t], status[2, n / 5 - 1 + t] = LinDantzig.DantzigLinCL.SolveTSP(n, c, q2, name)
-        tour[2, n / 5 - 1 + t], full[2, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            fc.close()
 
-        # McCormick Envelopes
-        obj[3, n / 5 - 1 + t], time[3, n / 5 - 1 + t], x, gap[3, n / 5 - 1 + t], status[3, n / 5 - 1 + t] = LinDantzig.DantzigLinMcC.SolveTSP(n, c, q2, name)
-        tour[3, n / 5 - 1 + t], full[3, n / 5 - 1 + t] = VerifyTour.check(x, n)
-        
-        # Base 2 Formulation
-        obj[4, n / 5 - 1 + t], time[4, n / 5 - 1 + t], x, gap[4, n / 5 - 1 + t], status[4, n / 5 - 1 + t] = LinDantzig.DantzigLinB2.SolveTSP(n, c, q2, name)
-        tour[4, n / 5 - 1 + t], full[4, n / 5 - 1 + t] = VerifyTour.check(x, n)
+            c = {}
+            for i in range(n):
+                for j in range(n):
+                    c[i, j] = arrc[i][j]
 
-        # Base 10 Formulation
-        obj[5, n / 5 - 1 + t], time[5, n / 5 - 1 + t], x, gap[5, n / 5 - 1 + t], status[5, n / 5 - 1 + t] = LinDantzig.DantzigLinB10.SolveTSP(n, c, q2, name)
-        tour[5, n / 5 - 1 + t], full[5, n / 5 - 1 + t] = VerifyTour.check(x, n)
+        # We choose to add the quadratic cost associated with a single edge to the linear cost so that the diagonals are 0
+
+            for i in range(n):
+                for j in range(n):
+                    ij = GetVal.getval(i,j,n)
+                    c[i, j] = c[i, j] + q[ij,ij]
+                    q[ij,ij] = 0
 
 
-        objline = []
-        timeline = []
-        tours = []
-        gapline = []
-        statusline = []
-        for i in range(6):
-            objline.append(obj[i, n / 5 - 1 + t])
-            a = time[i, n / 5 - 1 + t]
-            time[i, n / 5 - 1 + t] = round(a, 3)
-            timeline.append(time[i, n / 5 - 1 + t])
-            tours.append(full[i, n / 5 - 1 + t])
-            tourfile.write(str(tour[i, n / 5 - 1 + t]) + "\n")
-            gapline.append(gap[i, n / 5 - 1 + t])
-            statusline.append(status[i, n/5 -1 +t])
-        print(objline)
-        print(timeline)
-        print(tours)
-        print(statusline)
 
-        file.write("%d & %g & %g & %g & %g & %g &%g \\\\  \n" % (
-            n, time[0, n / 5 - 1 + t], time[1, n / 5 - 1 + t], time[2, n / 5 - 1 + t], time[3, n / 5 - 1 + t], time[4, n / 5 - 1 + t], time[5, n/5-1+t]))
 
-        objfile.write(str(objline) + "\n")
-        timefile.write(str(timeline) + "\n")
-        tourfile.write(str(tours) + "\n")
-        gapfile.write(str(gapline) + "\n")
-        statusfile.write(str(statusline) + "\n")
+            # Triangular Q
+            # name = qname + "-" + str(2)
+            q2 = QMod.triangular(q, e)
 
-        # print(str(objline))
+            # MTZ Formulation
+            obj[0, count], time[0, count], x, gap[0, count], status[0, count] = QuadDantzig.SolveTSP(n, c, q2, name, presolve)
+            tour[0, count], full[0, count] = VerifyTour.check(x, n)
 
-file.write("\\end{tabular}\n } \n")
-file.write("\\end{table}\n")
-file.write("\\end{document}")
+            # Binary replacement
+            obj[1, count], time[1, count], x, gap[1, count], status[1, count] = LinDantzig.DantzigLinBI.SolveTSP(n, c, q2,name, presolve)
+            tour[1, count], full[1, count] = VerifyTour.check(x, n)
 
-file.close()
-objfile.close()
-timefile.close()
-tourfile.close()
-gapfile.close()
+            # Classic
+            obj[2, count], time[2, count], x, gap[2, count], status[2, count] = LinDantzig.DantzigLinCL.SolveTSP(n, c, q2, name, presolve)
+            tour[2, count], full[2, count] = VerifyTour.check(x, n)
+
+            # McCormick Envelopes
+            obj[3, count], time[3, count], x, gap[3, count], status[3, count] = LinDantzig.DantzigLinMcC.SolveTSP(n, c, q2, name, presolve)
+            tour[3, count], full[3, count] = VerifyTour.check(x, n)
+
+            # Base 2 Formulation
+            obj[4, count], time[4, count], x, gap[4, count], status[4, count] = LinDantzig.DantzigLinB2.SolveTSP(n, c, q2, name, presolve)
+            tour[4, count], full[4, count] = VerifyTour.check(x, n)
+
+            # Base 10 Formulation
+            obj[5, count], time[5, count], x, gap[5, count], status[5, count] = LinDantzig.DantzigLinB10.SolveTSP(n, c, q2, name, presolve)
+            tour[5, count], full[5, count] = VerifyTour.check(x, n)
+
+
+            objline = []
+            timeline = []
+            tours = []
+            gapline = []
+            statusline = []
+            for i in range(6):
+                objline.append(obj[i, count])
+                a = time[i, count]
+                time[i, count] = round(a, 3)
+                timeline.append(time[i, count])
+                tours.append(full[i, count])
+                tourfile.write(str(tour[i, count]) + "\n")
+                gapline.append(gap[i, count])
+                statusline.append(status[i, n/5 -1 +t])
+            print(objline)
+            print(timeline)
+            print(tours)
+            print(statusline)
+
+            objfile.write(str(objline) + "\n")
+            timefile.write(str(timeline) + "\n")
+            tourfile.write(str(tours) + "\n")
+            gapfile.write(str(gapline) + "\n")
+            statusfile.write(str(statusline) + "\n")
+
+            count += 1
+            # print(str(objline))
+    fiveavg = [0] * 8
+    for i in range(8):
+        fiveavg[i] = round(sum(time[i, j] for j in range(fivetrials)) / fivetrials, 3)
+
+    print(fiveavg)
+
+    file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
+        n, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5], fiveavg[6], fiveavg[7]))
+
+    for i in range(fivetrials, count):
+        file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
+            n, time[0, i], time[1, i], time[2, i], time[3, i], time[4, i], time[5, i], time[6, i], time[7, i]))
+
+    file.write("\\end{tabular}\n } \n")
+    file.write("\\end{table}\n")
+    file.write("\\end{document}")
+
+    file.close()
+    objfile.close()
+    timefile.close()
+    tourfile.close()
+    gapfile.close()

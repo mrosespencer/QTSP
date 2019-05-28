@@ -175,8 +175,8 @@ for p in range(8):
             # name = qname + "-" + str(2)
             q2 = QMod.triangular(q, e)
 
-            # MTZ Formulation
-            obj[0, count], time[0, count], x, gap[0, count], status[0, count] = QuadDantzig.SolveTSP(n, c, q2, name, presolve)
+            # Dantzig Formulation
+            obj[0, count], time[0, count], x, gap[0, count], status[0, count] = QuadDantzig.SolveTSP(n, c, q2, name, adj, presolve)
             tour[0, count], full[0, count] = VerifyTour.check(x, n)
 
             # Binary replacement
@@ -213,7 +213,7 @@ for p in range(8):
                 tours.append(full[i, count])
                 tourfile.write(str(tour[i, count]) + "\n")
                 gapline.append(gap[i, count])
-                statusline.append(status[i, n/5 -1 +t])
+                statusline.append(status[i,count])
             print(objline)
             print(timeline)
             print(tours)

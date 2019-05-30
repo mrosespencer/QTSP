@@ -226,18 +226,19 @@ for p in range(8):
             count += 1
             # print(str(objline))
     
-    fiveavg = [0] * 8
-    for i in range(8):
-        fiveavg[i] = round(sum(time[i, j] for j in range(fivetrials)) / fivetrials, 3)
+    fiveavg = [0] * 6
+    for i in range(6):
+        fiveavg[i] = round(sum(time[i, j] for j in range(fivetrials)) / fivetrials, 4)
 
     print(fiveavg)
 
-    file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
-        n, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5], fiveavg[6], fiveavg[7]))
+    file.write("%d & %g & %g & %g & %g & %g & %g  \\\\  \n" % (
+        n, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5]))
 
     for i in range(fivetrials, count):
-        file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
-            n, time[0, i], time[1, i], time[2, i], time[3, i], time[4, i], time[5, i], time[6, i], time[7, i]))
+        file.write("%d & %g & %g & %g & %g & %g & %g \\\\  \n" % (
+            n, time[0, i], time[1, i], time[2, i], time[3, i], time[4, i], time[5, i]))
+
 
 
     file.write("\\end{tabular}\n } \n")

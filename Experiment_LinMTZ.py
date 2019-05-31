@@ -169,31 +169,31 @@ for p in range(8):
 
 
             # Triangular Q
-            # name = qname + "-" + str(2)
-            q2 = QMod.triangular(q, e)
+            name = qname + "-" + str(count)
+            print(count)
 
             # MTZ Formulation
-            obj[0, count], time[0, count], x, gap[0, count], status[0, count] = QuadMTZ.SolveTSP(n, c, q2, name, adj, presolve)
+            obj[0, count], time[0, count], x, gap[0, count], status[0, count] = QuadMTZ.SolveTSP(n, c, q, name, adj, presolve)
             tour[0, count], full[0, count] = VerifyTour.check(x, n)
 
             # Binary replacement
-            obj[1, count], time[1, count], x, gap[1, count], status[1, count] = LinMTZ.MTZLinBI.SolveTSP(n, c, q2, name, presolve)
+            obj[1, count], time[1, count], x, gap[1, count], status[1, count] = LinMTZ.MTZLinBI.SolveTSP(n, c, q, name, presolve)
             tour[1, count], full[1, count] = VerifyTour.check(x, n)
 
             # Classic
-            obj[2, count], time[2, count], x, gap[2, count], status[2, count] = LinMTZ.MTZLinCL.SolveTSP(n, c, q2, name, presolve)
+            obj[2, count], time[2, count], x, gap[2, count], status[2, count] = LinMTZ.MTZLinCL.SolveTSP(n, c, q, name, presolve)
             tour[2, count], full[2, count] = VerifyTour.check(x, n)
 
             # McCormick Envelopes
-            obj[3, count], time[3, count], x, gap[3, count], status[3, count] = LinMTZ.MTZLinMcC.SolveTSP(n, c, q2, name, presolve)
+            obj[3, count], time[3, count], x, gap[3, count], status[3, count] = LinMTZ.MTZLinMcC.SolveTSP(n, c, q, name, presolve)
             tour[3, count], full[3, count] = VerifyTour.check(x, n)
 
             # Base 2 Formulation
-            obj[4, count], time[4, count], x, gap[4, count], status[4, count] = LinMTZ.MTZLinB2.SolveTSP(n, c, q2, name, presolve)
+            obj[4, count], time[4, count], x, gap[4, count], status[4, count] = LinMTZ.MTZLinB2.SolveTSP(n, c, q, name, presolve)
             tour[4, count], full[4, count] = VerifyTour.check(x, n)
 
             # Base 10 Formulation
-            obj[5, count], time[5, count], x, gap[5, count], status[5, count] = LinMTZ.MTZLinB10.SolveTSP(n, c, q2, name, presolve)
+            obj[5, count], time[5, count], x, gap[5, count], status[5, count] = LinMTZ.MTZLinB10.SolveTSP(n, c, q, name, presolve)
             tour[5, count], full[5, count] = VerifyTour.check(x, n)
 
 
@@ -233,11 +233,11 @@ for p in range(8):
     print(fiveavg)
 
     file.write("%d & %g & %g & %g & %g & %g & %g  \\\\  \n" % (
-        n, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5]))
+        5, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5]))
 
-    for i in range(fivetrials, count):
+    for i in range(fivetrials, fivetrials+tentrials):
         file.write("%d & %g & %g & %g & %g & %g & %g \\\\  \n" % (
-            n, time[0, i], time[1, i], time[2, i], time[3, i], time[4, i], time[5, i]))
+            10, time[0, i], time[1, i], time[2, i], time[3, i], time[4, i], time[5, i]))
 
 
 

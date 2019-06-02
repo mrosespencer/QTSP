@@ -99,12 +99,13 @@ for p in range(8):
 
     for n in range(minsize, maxsize, 5):
 
-        if n < 15:
-            trials = 5
-        else:
+        if p == 8:
             trials = 1
-
-        if p ==7:
+        elif n == 5:
+            trials = fivetrials
+        elif n == 10:
+            trials = tentrials
+        else:
             trials = 1
 
         for t in range(trials):

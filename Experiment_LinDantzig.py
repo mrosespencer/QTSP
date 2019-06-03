@@ -38,7 +38,7 @@ import LinDantzig.DantzigLinB10
 
 
 minsize = 5
-maxsize = 11
+maxsize = 6
 
 
 # Presolve value: 0 = off, -1 = default
@@ -51,12 +51,12 @@ s = False
 
 # Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
 fivetrials = 100
-tentrials = 5
+tentrials = 0
 
 
 # p = 3 # we use only balanced Q for this experiment
 m = 10000
-for p in range(8):
+for p in range(1):
 
     properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd",  "other"]
 
@@ -159,14 +159,6 @@ for p in range(8):
             for i in range(n):
                 for j in range(n):
                     c[i, j] = arrc[i][j]
-
-        # We choose to add the quadratic cost associated with a single edge to the linear cost so that the diagonals are 0
-
-            for i in range(n):
-                for j in range(n):
-                    ij = GetVal.getval(i,j,n)
-                    c[i, j] = c[i, j] + q[ij,ij]
-                    q[ij,ij] = 0
 
 
 

@@ -160,13 +160,6 @@ for p in range(8):
                 for j in range(n):
                     c[i, j] = arrc[i][j]
 
-        # We choose to add the quadratic cost associated with a single edge to the linear cost so that the diagonals are 0
-
-            for i in range(n):
-                for j in range(n):
-                    ij = GetVal.getval(i,j,n)
-                    c[i, j] = c[i, j] + q[ij,ij]
-                    q[ij,ij] = 0
 
 
             # Triangular Q

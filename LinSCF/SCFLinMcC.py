@@ -22,7 +22,7 @@ def SolveTSP(n, c, q, qname, presolve):
 
     #Turn off presolve
     m.setParam("Presolve", presolve)
-    m.setParam("PreQLinearize", presolve)
+
 
 
     # Define constants

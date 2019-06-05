@@ -160,7 +160,7 @@ for p in range(8):
             for i in range(n):
                 for j in range(n):
                     c[i, j] = arrc[i][j]
-    
+
     
 
             name = qname + "-" + str(count)

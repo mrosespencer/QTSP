@@ -78,6 +78,7 @@ def SolveTSP(n, c, q, qname, presolve):
     m.Params.logtoconsole = 0
 
     m.setParam(GRB.Param.TimeLimit, 10800.0)
+
     if n <10:
         m.setParam("logfile","")
     else:
@@ -85,10 +86,7 @@ def SolveTSP(n, c, q, qname, presolve):
 
     #Turn off presolve
     m.setParam("Presolve", presolve)
-    m.setParam("PreQLinearize", presolve)
 
-
-    m.setParam("logfile", "%s.txt" % logname)
 
     # Define constants
     f = n * (n - 1)

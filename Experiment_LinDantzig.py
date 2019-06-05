@@ -51,12 +51,12 @@ s = False
 
 # Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
 fivetrials = 100
-tentrials = 0
+tentrials = 5
 
 
 # p = 3 # we use only balanced Q for this experiment
 m = 10000
-for p in range(1):
+for p in range(8):
 
     properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd",  "other"]
 

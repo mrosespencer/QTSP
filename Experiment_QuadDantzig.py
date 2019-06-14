@@ -15,6 +15,8 @@ import PrintM
 
 minsize = 5
 maxsize = 11
+# size = [5,8,10,15]
+size = [8]
 
 # Presolve value: 0 = off, -1 = default
 presolve = 0
@@ -24,15 +26,16 @@ skip = False
 adj = False
 
 # Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
-fivetrials = 100
-tentrials = 5
-totaltrials = fivetrials + tentrials
+fivetrials = 0
+tentrials = 0
+eighttrials = 5
+totaltrials = fivetrials + tentrials + eighttrials
 
 
 s = False
 # p = 0  # change within 0, ..., 7 for the different properties of randomly generated quadratic cost files
 # details on creation of the quadratic costs can be found in MakeTSP
-for p in range(1):
+for p in range(8):
 
     #Parameters
 
@@ -76,12 +79,14 @@ for p in range(1):
     
     count = 0
 
-    for n in range(minsize, maxsize, 5):
+    for n in size:
 
         if p == 8:
             trials = 1
         elif n == 5:
             trials = fivetrials
+        elif n == 8:
+            trials = eighttrials
         elif n == 10:
             trials = tentrials
         else:
@@ -234,14 +239,15 @@ for p in range(1):
 
             count += 1
 
-    fiveavg = [0]*8
-    for i in range(8):
-        fiveavg[i] = round(sum(time[i,j] for j in range(fivetrials))/fivetrials, 3)
+    if fivetrials > 0:
+        fiveavg = [0]*8
+        for i in range(8):
+            fiveavg[i] = round(sum(time[i,j] for j in range(fivetrials))/fivetrials, 3)
 
-    print(fiveavg)
+        print(fiveavg)
 
-    file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
-                n, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5], fiveavg[6], fiveavg[7]))
+        file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
+                    n, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5], fiveavg[6], fiveavg[7]))
 
     for i in range(fivetrials, count):
         file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (

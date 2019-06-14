@@ -1,8 +1,8 @@
 from random import *
 import QMod
 
-minsize = 5
-maxsize = 6
+minsize = 8
+maxsize = 9
 s = False
 
 properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd"]
@@ -119,10 +119,12 @@ for n in range(minsize, maxsize, 5):
         trials = 100
     elif n == 10:
         trials = 5
+    elif n == 8:
+        trials = 5
     else:
         trials = 1
 
-    for t in range(5, 100):
+    for t in range(trials):
         for p in range(8):
             MakeQ(n, s, properties[p], t)
         MakeCmat(n, t)

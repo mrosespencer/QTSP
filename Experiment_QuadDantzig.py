@@ -16,7 +16,7 @@ import PrintM
 minsize = 5
 maxsize = 11
 # size = [5,8,10,15]
-size = [8]
+size = [12]
 
 # Presolve value: 0 = off, -1 = default
 presolve = 0
@@ -28,8 +28,9 @@ adj = False
 # Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
 fivetrials = 0
 tentrials = 0
-eighttrials = 5
-totaltrials = fivetrials + tentrials + eighttrials
+eighttrials = 0
+twelvetrials = 5
+totaltrials = fivetrials + tentrials + eighttrials +twelvetrials
 
 
 s = False
@@ -89,6 +90,8 @@ for p in range(8):
             trials = eighttrials
         elif n == 10:
             trials = tentrials
+        elif n == 12:
+            trials = twelvetrials
         else:
             trials = 1
 
@@ -249,7 +252,7 @@ for p in range(8):
         file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
                     n, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5], fiveavg[6], fiveavg[7]))
 
-    for i in range(fivetrials, count):
+    for i in range(fivetrials, totaltrials):
         file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
                 n, time[0, i], time[1, i], time[2,i], time[3, i], time[4, i], time[5, i],time[6, i], time[7,i]))
 

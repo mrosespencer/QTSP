@@ -52,7 +52,7 @@ adj = False
 # Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
 fivetrials = 0
 tentrials = 0
-eighttrials = 5
+eighttrials = 10
 totaltrials = fivetrials + tentrials + eighttrials
 
 
@@ -224,7 +224,6 @@ for p in range(8):
             print(count)
             count += 1
 
-
     if fivetrials > 0:
         fiveavg = [0] * 6
         for i in range(6):
@@ -235,9 +234,19 @@ for p in range(8):
         file.write("%d & %g & %g & %g & %g & %g & %g  \\\\  \n" % (
             5, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5]))
 
-    for i in range(fivetrials, totaltrials):
+    if eighttrials > 0:
+        eightavg = [0] * 6
+        for i in range(6):
+            eightavg[i] = round(sum(time[i, j] for j in range(eighttrials)) / eighttrials, 4)
+
+        print(eightavg)
+
+        file.write("%d & %g & %g & %g & %g & %g & %g  \\\\  \n" % (
+            5, eightavg[0], eightavg[1], eightavg[2], eightavg[3], eightavg[4], eightavg[5]))
+
+    for i in range(fivetrials + eighttrials, totaltrials):
         file.write("%d & %g & %g & %g & %g & %g & %g \\\\  \n" % (
-            10, time[0, i], time[1, i], time[2, i], time[3, i], time[4, i], time[5, i]))
+            n, time[0, i], time[1, i], time[2, i], time[3, i], time[4, i], time[5, i]))
 
 
     

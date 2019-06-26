@@ -29,7 +29,7 @@ adj = False
 fivetrials = 0
 tentrials = 0
 eighttrials = 0
-twelvetrials = 5
+twelvetrials = 10
 totaltrials = fivetrials + tentrials + eighttrials +twelvetrials
 
 
@@ -250,9 +250,18 @@ for p in range(8):
         print(fiveavg)
 
         file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
-                    n, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5], fiveavg[6], fiveavg[7]))
+                    5, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5], fiveavg[6], fiveavg[7]))
+    if eighttrials > 0:
+        eightavg = [0] * 8
+        for i in range(8):
+            eightavg[i] = round(sum(time[i, j] for j in range(eighttrials)) / eighttrials, 4)
 
-    for i in range(fivetrials, totaltrials):
+        print(eightavg)
+
+        file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
+            8, eightavg[0], eightavg[1], eightavg[2], eightavg[3], eightavg[4], eightavg[5], eightavg[6], eightavg[7]))
+
+    for i in range(fivetrials+eighttrials, totaltrials):
         file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
                 n, time[0, i], time[1, i], time[2,i], time[3, i], time[4, i], time[5, i],time[6, i], time[7,i]))
 

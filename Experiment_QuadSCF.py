@@ -27,7 +27,7 @@ adj = False
 fivetrials = 0
 tentrials = 0
 eighttrials = 0
-twelvetrials = 5
+twelvetrials = 1
 totaltrials = fivetrials + tentrials + eighttrials +twelvetrials
 
 s = False

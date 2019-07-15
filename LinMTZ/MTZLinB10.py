@@ -66,15 +66,20 @@ def SolveTSP(n, c, q, qname, presolve):
 
     for i in range(n):
         for j in range(n):
-            x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
+            # x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
+            x[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='x ' + str(i) + '_' + str(j), lb=0, ub=1)
             if i != j:
                 ij = GetVal.getval(i, j, n)
                 for p in range(upperp[ij]):
-                    rone[ij,p] = m.addVar(vtype = GRB.INTEGER, ub = 9, lb = 0, name = 'r1 ' + str(i)+str(j) + '_' +str(p))
-                    vone[ij,p] = m.addVar(vtype = GRB.INTEGER, ub = 9, lb = 0, name = 'v1 ' + str(i)+str(j) + '_' +str(p))
+                    # rone[ij,p] = m.addVar(vtype = GRB.INTEGER, ub = 9, lb = 0, name = 'r1 ' + str(i)+str(j) + '_' +str(p))
+                    # vone[ij,p] = m.addVar(vtype = GRB.INTEGER, ub = 9, lb = 0, name = 'v1 ' + str(i)+str(j) + '_' +str(p))
+                    rone[ij,p] = m.addVar(vtype = GRB.CONTINUOUS, ub = 9, lb = 0, name = 'r1 ' + str(i)+str(j) + '_' +str(p))
+                    vone[ij,p] = m.addVar(vtype = GRB.CONTINUOUS, ub = 9, lb = 0, name = 'v1 ' + str(i)+str(j) + '_' +str(p))
                 for o in range(lowerp[ij]):
-                    rtwo[ij,o] = m.addVar(vtype = GRB.INTEGER, ub = 9, lb = 0, name = 'r2 ' + str(i)+str(j) + '_' +str(o))
-                    vtwo[ij,o] = m.addVar(vtype = GRB.INTEGER, ub = 9,lb = 0, name = 'v2 ' + str(i)+str(j) + '_' +str(o))
+                    rtwo[ij,o] = m.addVar(vtype = GRB.CONTINUOUS, ub = 9, lb = 0, name = 'r2 ' + str(i)+str(j) + '_' +str(o))
+                    vtwo[ij,o] = m.addVar(vtype = GRB.CONTINUOUS, ub = 9,lb = 0, name = 'v2 ' + str(i)+str(j) + '_' +str(o))
+                    # rtwo[ij, o] = m.addVar(vtype=GRB.INTEGER, ub=9, lb=0, name='r2 ' + str(i) + str(j) + '_' + str(o))
+                    # vtwo[ij, o] = m.addVar(vtype=GRB.INTEGER, ub=9, lb=0, name='v2 ' + str(i) + str(j) + '_' + str(o))
 
     for i in range(1, n):
         u[i] = m.addVar(vtype=GRB.CONTINUOUS, name='u' + str(i))
@@ -161,17 +166,18 @@ def SolveTSP(n, c, q, qname, presolve):
 
     finalx = {}
     varlist = []
-
+    print("B10: %f", m.objVal)
     for v in m.getVars():
         if v.VarName.find('x ') != -1:
             varlist.append(v.x)
-
+            print(v.varName, v.x)
 
     for i in range(n):
         for j in range(n):
             finalx[i,j] = varlist[(n*i)+j]
 
-    gap = m.MIPGAP
+    # gap = m.MIPGAP
+    gap = 0
 
     # for v in m.getVars():
     #     if v.x > 0:

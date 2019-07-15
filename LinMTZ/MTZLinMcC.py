@@ -47,7 +47,8 @@ def SolveTSP(n, c, q, qname, presolve):
 
     for i in range(n):
         for j in range(n):
-            x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
+            # x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
+            x[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='x ' + str(i) + '_' + str(j), lb=0, ub=1)
             if i != j:
                 ij = GetVal.getval(i, j, n)
                 t[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='t-' + str(i) + '_' + str(j), lb = lowerv[ij]-1)   # determine appropriate lower bound
@@ -144,11 +145,11 @@ def SolveTSP(n, c, q, qname, presolve):
     varlist = []
 
     if m.status != GRB.Status.INFEASIBLE:
-
+        print("McC: %f", m.objVal)
         for v in m.getVars():
             if v.VarName.find('x ') != -1:
                 varlist.append(v.x)
-
+                print(v.varName, v.x)
 
         for i in range(n):
             for j in range(n):
@@ -156,7 +157,8 @@ def SolveTSP(n, c, q, qname, presolve):
 
         # print(PrintM.printmatrix(finalx, n))
 
-        gap = m.MIPGAP
+        # gap = m.MIPGAP
+        gap = 0
         obj= m.objVal
 
         # for v in m.getVars():

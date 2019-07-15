@@ -1,6 +1,7 @@
 from gurobipy import *
 import time
 import GetVal
+import math
 
 
 def SolveTSP(n, c, q, qname, adj,  presolve):
@@ -15,6 +16,7 @@ def SolveTSP(n, c, q, qname, adj,  presolve):
     # Set time limit to 3 hours
 
     m.setParam(GRB.Param.TimeLimit, 10800.0)
+    # m.setParam(GRB.Param.IntFeasTol, 1e-9)
 
     if n <10:
         m.setParam("logfile","")
@@ -32,7 +34,9 @@ def SolveTSP(n, c, q, qname, adj,  presolve):
 
     for i in range(n):
         for j in range(n):
-            x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
+            # x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
+            x[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='x ' + str(i) + '_' + str(j), ub=1.0)
+
 
     for i in range(1, n):
         u[i] = m.addVar(vtype=GRB.CONTINUOUS, name='u' + str(i))
@@ -64,7 +68,8 @@ def SolveTSP(n, c, q, qname, adj,  presolve):
                             if k != l:
                                 ij = GetVal.getval(i, j, n)
                                 kl = GetVal.getval(k, l, n)
-                                objective.addTerms(q[ij, kl], x[i, j], x[k, l])
+                                # objective.addTerms(q[ij, kl], x[i, j], x[k, l])
+                                objective.add(x[i, j]* x[k, l], q[ij, kl])
 
     else:
         for i in range(n):
@@ -77,18 +82,20 @@ def SolveTSP(n, c, q, qname, adj,  presolve):
                             objective.addTerms(q[ij, jk], x[i, j], x[j, k])
     for i in range(n):
         for j in range(n):
-            objective.addTerms(c[i, j], x[i, j])
+            if i != j:
+                objective.add(x[i, j], c[i, j])
 
     m.setObjective(objective, GRB.MINIMIZE)
 
-    # m.update()
+    m.update()
     # print(objective)
     # Constraints
 
     for i in range(n):
-        x[i, i].ub = 0
-        m.addConstr((quicksum(x[i, j] for j in range(n))) == 1, "c1-" + str(i))
-        m.addConstr((quicksum(x[j, i] for j in range(n))) == 1, "c2-" + str(i))
+        # m.addConstr(x[i, i] == 0.0)
+        x[i, i].ub = 0.0
+        m.addConstr((quicksum(x[i, j] for j in range(n) if j!=i)) == 1.0, "c1-" + str(i))
+        m.addConstr((quicksum(x[j, i] for j in range(n)if j!=i)) == 1.0, "c2-" + str(i))
 
     for i in range(1, n):
         m.addConstr(1 <= u[i], "u-" + str(i))
@@ -97,23 +104,28 @@ def SolveTSP(n, c, q, qname, adj,  presolve):
     for i in range(1, n):
         for j in range(1, n):
             if i != j:
-                m.addConstr(((u[i] - u[j] + ((n - 1) * x[i, j])) <= (n - 2)), "u3-" + str(i) + "_" + str(j))
+                m.addConstr(((u[i] - u[j] + ((n - 1) *x[i, j])) <= (n - 2)), "u3-" + str(i) + "_" + str(j))
 
     m.update()
     m.optimize()
 
     finalx = {}
     varlist = []
-
+    print("Quad: %f"% m.objVal)
     for v in m.getVars():
-        if v.VType != GRB.CONTINUOUS:
+        if v.VarName.find('x ') != -1:
             varlist.append(v.x)
-
+            print(v.varName, v.x)
+    for v in m.getVars():
+        if v.VarName.find('u') != -1:
+            varlist.append(v.x)
+            print(v.varName, v.x)
     for i in range(n):
         for j in range(n):
             finalx[i, j] = varlist[(n * i) + j]
 
-    gap = m.MIPGAP
+    # gap = m.MIPGAP
+    gap = 0
 
     t1 = time.time()
     totaltime = t1 - t0

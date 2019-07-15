@@ -40,7 +40,7 @@ import LinMTZ.MTZLinB10
 minsize = 5
 maxsize = 11
 # size = [5,8,10,15]
-size = [8]
+size = [5]
 
 # Presolve value: 0 = off, -1 = default
 presolve = 0
@@ -50,16 +50,16 @@ skip = False
 adj = False
 
 # Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
-fivetrials = 0
+fivetrials = 1
 tentrials = 0
 eighttrials = 0
-twelvetrials = 1
+twelvetrials = 0
 totaltrials = fivetrials + tentrials + eighttrials +twelvetrials
 
 
 # p = 3 # we use only balanced Q for this experiment
 m = 10000
-for p in range(8):
+for p in range(1,2):
 
     properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd", "other"]
 

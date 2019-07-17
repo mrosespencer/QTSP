@@ -4,7 +4,7 @@ import GetVal
 import math
 
 
-def SolveTSP(n, c, q, qname, adj,  presolve):
+def SolveTSP(n, c, q, qname, adj,  presolve, relax):
     t0 = time.time()
     # Create model
     m = Model()
@@ -18,7 +18,7 @@ def SolveTSP(n, c, q, qname, adj,  presolve):
     m.setParam(GRB.Param.TimeLimit, 10800.0)
     # m.setParam(GRB.Param.IntFeasTol, 1e-9)
 
-    if n <10:
+    if n <4:
         m.setParam("logfile","")
     else:
         m.setParam("logfile", "%s.txt" % logname)
@@ -34,8 +34,8 @@ def SolveTSP(n, c, q, qname, adj,  presolve):
 
     for i in range(n):
         for j in range(n):
-            # x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
-            x[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='x ' + str(i) + '_' + str(j), ub=1.0)
+            x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
+
 
 
     for i in range(1, n):
@@ -107,28 +107,32 @@ def SolveTSP(n, c, q, qname, adj,  presolve):
                 m.addConstr(((u[i] - u[j] + ((n - 1) *x[i, j])) <= (n - 2)), "u3-" + str(i) + "_" + str(j))
 
     m.update()
+    if relax == True:
+        m = m.relax()
+        gap = 0
+
     m.optimize()
+
 
     finalx = {}
     varlist = []
-    print("Quad: %f"% m.objVal)
+
     for v in m.getVars():
         if v.VarName.find('x ') != -1:
             varlist.append(v.x)
-            print(v.varName, v.x)
-    for v in m.getVars():
-        if v.VarName.find('u') != -1:
-            varlist.append(v.x)
-            print(v.varName, v.x)
+            # print(v.varName, v.x)
+
     for i in range(n):
         for j in range(n):
             finalx[i, j] = varlist[(n * i) + j]
 
-    # gap = m.MIPGAP
-    gap = 0
+    if relax == False:
+        gap = m.MIPGAP
 
     t1 = time.time()
     totaltime = t1 - t0
 
     status = m.status
+
+
     return m.objVal, totaltime, finalx, gap, status

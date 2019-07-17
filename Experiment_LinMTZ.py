@@ -34,7 +34,7 @@ minsize = 5
 maxsize = 11
 # We provide 100 size 5 problems (averaged), 10 size 8 problems (averaged), 5 size 10 problems, 5 size 12 problems (one solved), one of each sizes 15, 20, 25, and 30 (none solved).
 # size = [5,8,10,15]
-size = [10]
+size = [12]
 
 # Presolve value: 0 = off, -1 = default
 presolve = 0
@@ -44,13 +44,13 @@ skip = True
 adj = False
 
 #Modify this parameter to run either the integer (False) or relaxed models (False)
-relax = False
+relax = True
 
 # Set number of trials to (can do up to 100 size 5, and 5 size 10, five each size 10 and 12)
 fivetrials = 0
 eighttrials = 0
-tentrials = 1
-twelvetrials = 0
+tentrials = 0
+twelvetrials = 1
 totaltrials = fivetrials + tentrials + eighttrials +twelvetrials
 
 
@@ -174,7 +174,7 @@ for p in range(8):
             # Q
             name = qname + "-" + str(count)
 
-            # q = QMod.minusm(q,e,m)
+            q = QMod.minusm(q,e,m)
 
             # MTZ Formulation
             obj[0, count], time[0, count], x, gap[0, count], status[0, count] = QuadMTZ.SolveTSP(n, c, q, name, adj, presolve, relax)

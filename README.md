@@ -5,11 +5,11 @@ This repo contains python code to recreate the experiments that I completed as p
 
 We test the effect of modifying the structure of the quadratic cost matrix on computation time for the quadratic form of the traveling salesman problem. We use randomly generated cost matrices with different properties (details below), and three formulations (Dantzig subtour elimination, Miller Tucker Zemlin - MTZ, and single commodity flow - SCF). 
 
-We then test the effect on computation time of different linearizations on the quadratic models. We test five linearizations: binary replacement, classic method, McCormick envelopes, base-2 and base-10. Details on these linearizations can be found in my written documentation. We restrict to one quadratic cost property (balanced) and one modification (upper triangular).
+We then test the effect on computation time of different linearizations on the quadratic models. We test five linearizations: binary replacement, classic method, McCormick envelopes, base-2 and base-10. Details on these linearizations can be found in my written documentation. For the MTZ and SCF models you can also test the linear relaxation of these integer programs. 
 
 To run the quadratic models, select the appropriate Experiment file (QuadMTZ, QuadSCF, QuadDantzig). You can change the property of the quadratic cost matrix by changing the property value in the model. The model will then read a different set of costs from the Costs folder. The model will test the different modifications within the QMod file.
 
-To run the linearized models, select the appropriate Experiment file (LinMTZ, LinSCF, LinDantzig). We restrict to one property/modification, though the cost matrices are provided for the others, and the experiment file can access the QMod file if so desired. The code will test the different linearizations.
+To run the linearized models, select the appropriate Experiment file (LinMTZ, LinSCF, LinDantzig). The code will test the different linearizations.
 
 The outputs will be a textfile that creates the Latex files in my report, as well as simple text files of the objective values, time to run, gurobi status code, tour information, and the gurobi log files.
 

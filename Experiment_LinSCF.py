@@ -40,7 +40,7 @@ import LinSCF.SCFLinB10
 minsize = 5
 maxsize = 11
 # size = [5,8,10,15]
-size = [8]
+size = [12]
 
 # Presolve value: 0 = off, -1 = default
 presolve = 0
@@ -48,6 +48,9 @@ presolve = 0
 # Used for testing purposes only
 skip = False
 adj = False
+
+# Test relaxed models
+relax = True
 
 # Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
 fivetrials = 0
@@ -64,8 +67,13 @@ for p in range(8):
     properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd",  "other"]
     
     prop = properties[p]
-    
-    filename = "SCFLin%s" % prop
+
+    if relax == True:
+        propr = prop + "-relax"
+    else:
+        propr = prop
+
+    filename = "SCFLin%s" % propr
     file = open(filename+".txt", 'w')
     
     file.write("\\documentclass[11pt]{article}\n")
@@ -79,11 +87,11 @@ for p in range(8):
     file.write(
         "Size & Quadratic & Binary & Classic & McCormick & Base 2 & Base 10 \\\\ \\midrule \n")
     
-    objfilename = "SCFLin%s-obj.txt" % prop
-    timefilename = "SCFLin%s-time.txt" % prop
-    tourfilename = "SCFLin%s-tour.txt" % prop
-    gapfilename = "SCFLin%s-gap.txt" % prop
-    statusfilename = "SCFLin%s-status.txt" % prop
+    objfilename = "SCFLin%s-obj.txt" % propr
+    timefilename = "SCFLin%s-time.txt" % propr
+    tourfilename = "SCFLin%s-tour.txt" % propr
+    gapfilename = "SCFLin%s-gap.txt" % propr
+    statusfilename = "SCFLin%s-status.txt" % propr
     
     objfile = open(objfilename, "w")
     timefile = open(timefilename, "w")
@@ -168,33 +176,31 @@ for p in range(8):
                 for j in range(n):
                     c[i, j] = arrc[i][j]
 
-    
 
             name = qname + "-" + str(count)
-            print(count)
     
             # SCF Formulation
-            obj[0, count], time[0, count], x, gap[0, count], status[0, count] = QuadSCF.SolveTSP(n, c, q, name, adj, presolve)
+            obj[0, count], time[0, count], x, gap[0, count], status[0, count] = QuadSCF.SolveTSP(n, c, q, name, adj, presolve, relax)
             tour[0, count], full[0, count] = VerifyTour.check(x, n)
     
             # Binary replacement
-            obj[1, count], time[1, count], x, gap[1, count], status[1, count] = LinSCF.SCFLinBI.SolveTSP(n, c, q, name, presolve)
+            obj[1, count], time[1, count], x, gap[1, count], status[1, count] = LinSCF.SCFLinBI.SolveTSP(n, c, q, name, presolve, relax)
             tour[1, count], full[1, count] = VerifyTour.check(x, n)
     
             # Classic
-            obj[2, count], time[2, count], x, gap[2, count], status[2, count] = LinSCF.SCFLinCL.SolveTSP(n, c, q, name, presolve)
+            obj[2, count], time[2, count], x, gap[2, count], status[2, count] = LinSCF.SCFLinCL.SolveTSP(n, c, q, name, presolve, relax)
             tour[2, count], full[2, count] = VerifyTour.check(x, n)
     
             # McCormick Envelopes
-            obj[3, count], time[3, count], x, gap[3, count], status[3, count] = LinSCF.SCFLinMcC.SolveTSP(n, c, q, name, presolve)
+            obj[3, count], time[3, count], x, gap[3, count], status[3, count] = LinSCF.SCFLinMcC.SolveTSP(n, c, q, name, presolve, relax)
             tour[3, count], full[3, count] = VerifyTour.check(x, n)
             
             # Base 2 Formulation
-            obj[4, count], time[4, count], x, gap[4, count], status[4, count] = LinSCF.SCFLinB2.SolveTSP(n, c, q, name, presolve)
+            obj[4, count], time[4, count], x, gap[4, count], status[4, count] = LinSCF.SCFLinB2.SolveTSP(n, c, q, name, presolve, relax)
             tour[4, count], full[4, count] = VerifyTour.check(x, n)
     
             # Base 10 Formulation
-            obj[5, count], time[5, count], x, gap[5, count], status[5, count] = LinSCF.SCFLinB10.SolveTSP(n, c, q, name, presolve)
+            obj[5, count], time[5, count], x, gap[5, count], status[5, count] = LinSCF.SCFLinB10.SolveTSP(n, c, q, name, presolve, relax)
             tour[5, count], full[5, count] = VerifyTour.check(x, n)
     
     
@@ -224,10 +230,9 @@ for p in range(8):
             gapfile.write(str(gapline) + "\n")
             statusfile.write(str(statusline) + "\n")
 
-            print(count)
             count += 1
 
-    if fivetrials > 0:
+    if fivetrials > 1:
         fiveavg = [0] * 6
         for i in range(6):
             fiveavg[i] = round(sum(time[i, j] for j in range(fivetrials)) / fivetrials, 4)
@@ -237,7 +242,7 @@ for p in range(8):
         file.write("%d & %g & %g & %g & %g & %g & %g  \\\\  \n" % (
             5, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5]))
 
-    if eighttrials > 0:
+    if eighttrials > 1:
         eightavg = [0] * 6
         for i in range(6):
             eightavg[i] = round(sum(time[i, j] for j in range(eighttrials)) / eighttrials, 4)

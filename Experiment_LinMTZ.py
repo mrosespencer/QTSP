@@ -1,11 +1,11 @@
 # This program runs the experimentation for the MTZ formulation of the linearized quadratic traveling salesman problem.
-# We test one version of the quadratic cost matrix (balanced Q), and one modifcation (upper triangular). We then test
-# methods to linearize the quadratic objective function. Those linearizations are: replacing the quadratic term with a
+#  We then test methods to linearize the quadratic objective function. Those linearizations are: replacing the quadratic term with a
 # binary variable, the classical linearization using continuous variables, the McCormick envelopes, base 2 and base 10
 # linearizations. All linearized models are found in the sub folder LiinMTZ. We test these linearization against the
 # non-linear form. The outputs for this program are the latex file that produces the tables in my report, as well as
 #  simple text files of the objective value, gap value, Gurobi status, and the tour of the TSP. It also outputs the
 #  Gurobi log files.
+
 
 
 
@@ -39,19 +39,21 @@ import LinMTZ.MTZLinB10
 
 minsize = 5
 maxsize = 11
+# We provide 100 size 5 problems (averaged), 10 size 8 problems (averaged), 5 size 10 problems
 # size = [5,8,10,15]
-size = [5]
+size = [10]
 
 # Presolve value: 0 = off, -1 = default
 presolve = 0
 
 # Used for testing purposes only
-skip = False
+skip = True
 adj = False
+relax = True
 
 # Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
-fivetrials = 1
-tentrials = 0
+fivetrials = 0
+tentrials = 1
 eighttrials = 0
 twelvetrials = 0
 totaltrials = fivetrials + tentrials + eighttrials +twelvetrials
@@ -59,13 +61,18 @@ totaltrials = fivetrials + tentrials + eighttrials +twelvetrials
 
 # p = 3 # we use only balanced Q for this experiment
 m = 10000
-for p in range(1,2):
+for p in range(8):
 
     properties = ["nonneg", "negskew", "posskew", "balanced", "psd", "rankone", "ranktwo", "nonnegpsd", "other"]
 
     prop = properties[p]
 
-    filename = "MTZLin%s" % prop
+    if relax == True:
+        propr = prop + "-relax"
+    else:
+        propr = prop
+
+    filename = "MTZLin%s" % propr
     file = open(filename+".txt", 'w')
 
     file.write("\\documentclass[11pt]{article}\n")
@@ -79,11 +86,11 @@ for p in range(1,2):
     file.write(
         "Size & Quadratic & Binary & Classic & McCormick & Base 2 & Base 10 \\\\ \\midrule \n")
 
-    objfilename = "MTZLin%s-obj.txt" % prop
-    timefilename = "MTZLin%s-time.txt" % prop
-    tourfilename = "MTZLin%s-tour.txt" % prop
-    gapfilename = "MTZLin%s-gap.txt" % prop
-    statusfilename = "MTZLin%s-status.txt" % prop
+    objfilename = "MTZLin%s-obj.txt" % propr
+    timefilename = "MTZLin%s-time.txt" % propr
+    tourfilename = "MTZLin%s-tour.txt" % propr
+    gapfilename = "MTZLin%s-gap.txt" % propr
+    statusfilename = "MTZLin%s-status.txt" % propr
 
     objfile = open(objfilename, "w")
     timefile = open(timefilename, "w")
@@ -169,32 +176,33 @@ for p in range(1,2):
 
 
 
-            # Triangular Q
+            # Q
             name = qname + "-" + str(count)
-            print(count)
+
+            # q = QMod.minusm(q,e,m)
 
             # MTZ Formulation
-            obj[0, count], time[0, count], x, gap[0, count], status[0, count] = QuadMTZ.SolveTSP(n, c, q, name, adj, presolve)
+            obj[0, count], time[0, count], x, gap[0, count], status[0, count] = QuadMTZ.SolveTSP(n, c, q, name, adj, presolve, relax)
             tour[0, count], full[0, count] = VerifyTour.check(x, n)
 
             # Binary replacement
-            obj[1, count], time[1, count], x, gap[1, count], status[1, count] = LinMTZ.MTZLinBI.SolveTSP(n, c, q, name, presolve)
+            obj[1, count], time[1, count], x, gap[1, count], status[1, count] = LinMTZ.MTZLinBI.SolveTSP(n, c, q, name, presolve, relax)
             tour[1, count], full[1, count] = VerifyTour.check(x, n)
 
             # Classic
-            obj[2, count], time[2, count], x, gap[2, count], status[2, count] = LinMTZ.MTZLinCL.SolveTSP(n, c, q, name, presolve)
+            obj[2, count], time[2, count], x, gap[2, count], status[2, count] = LinMTZ.MTZLinCL.SolveTSP(n, c, q, name, presolve, relax)
             tour[2, count], full[2, count] = VerifyTour.check(x, n)
 
             # McCormick Envelopes
-            obj[3, count], time[3, count], x, gap[3, count], status[3, count] = LinMTZ.MTZLinMcC.SolveTSP(n, c, q, name, presolve)
+            obj[3, count], time[3, count], x, gap[3, count], status[3, count] = LinMTZ.MTZLinMcC.SolveTSP(n, c, q, name, presolve, relax)
             tour[3, count], full[3, count] = VerifyTour.check(x, n)
 
             # Base 2 Formulation
-            obj[4, count], time[4, count], x, gap[4, count], status[4, count] = LinMTZ.MTZLinB2.SolveTSP(n, c, q, name, presolve)
+            obj[4, count], time[4, count], x, gap[4, count], status[4, count] = LinMTZ.MTZLinB2.SolveTSP(n, c, q, name, presolve, relax)
             tour[4, count], full[4, count] = VerifyTour.check(x, n)
 
             # Base 10 Formulation
-            obj[5, count], time[5, count], x, gap[5, count], status[5, count] = LinMTZ.MTZLinB10.SolveTSP(n, c, q, name, presolve)
+            obj[5, count], time[5, count], x, gap[5, count], status[5, count] = LinMTZ.MTZLinB10.SolveTSP(n, c, q, name, presolve, relax)
             tour[5, count], full[5, count] = VerifyTour.check(x, n)
 
 
@@ -217,7 +225,7 @@ for p in range(1,2):
             print(tours)
             print(statusline)
 
-          
+
             objfile.write(str(objline) + "\n")
             timefile.write(str(timeline) + "\n")
             tourfile.write(str(tours) + "\n")
@@ -227,7 +235,7 @@ for p in range(1,2):
             count += 1
             # print(str(objline))
 
-    if fivetrials > 0:
+    if fivetrials > 1:
         fiveavg = [0] * 6
         for i in range(6):
             fiveavg[i] = round(sum(time[i, j] for j in range(fivetrials)) / fivetrials, 4)
@@ -237,7 +245,7 @@ for p in range(1,2):
         file.write("%d & %g & %g & %g & %g & %g & %g  \\\\  \n" % (
             5, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5]))
 
-    if eighttrials > 0:
+    if eighttrials > 5:
         eightavg = [0] * 6
         for i in range(6):
             eightavg[i] = round(sum(time[i, j] for j in range(eighttrials)) / eighttrials, 4)

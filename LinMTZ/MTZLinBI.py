@@ -3,7 +3,7 @@ import time
 import GetVal
 
 
-def SolveTSP(n, c, q, qname, presolve):
+def SolveTSP(n, c, q, qname, presolve, relax):
     t0 = time.time()
     # Create model
     m = Model()
@@ -30,8 +30,8 @@ def SolveTSP(n, c, q, qname, presolve):
 
     for i in range(n):
         for j in range(n):
-            # x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
-            x[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='x ' + str(i) + '_' + str(j), lb=0, ub=1)
+            x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
+
 
     for i in range(1, n):
         u[i] = m.addVar(vtype=GRB.CONTINUOUS, name='u' + str(i))
@@ -49,8 +49,7 @@ def SolveTSP(n, c, q, qname, presolve):
 
     for i in range(f):
         for j in range(f):
-            # y[i,j] = m.addVar(vtype=GRB.BINARY, name="y "+ str(i) + '_'+str(j))
-            y[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='y ' + str(i) + '_' + str(j), lb=0, ub=1)
+            y[i,j] = m.addVar(vtype=GRB.BINARY, name="y "+ str(i) + '_'+str(j))
 
     # Set objective
 
@@ -67,8 +66,7 @@ def SolveTSP(n, c, q, qname, presolve):
 
     m.setObjective(objective, GRB.MINIMIZE)
 
-    # m.update()
-    # print(objective)
+
     # Constraints
 
     for i in range(n):
@@ -100,34 +98,26 @@ def SolveTSP(n, c, q, qname, presolve):
 
 
     m.update()
+    if relax == True:
+        m = m.relax()
+        gap = 0
     m.optimize()
 
 
     finalx = {}
     varlist = []
-    print("BI: %f"% m.objVal)
+
     for v in m.getVars():
         if v.VarName.find('x ') != -1:
             varlist.append(v.x)
-            print(v.varName, v.x)
+
 
     for i in range(n):
         for j in range(n):
             finalx[i,j] = varlist[(n*i)+j]
 
-    # gap = m.MIPGAP
-    gap = 0
-
-    # for v in m.getVars():
-    #     if v.x > 0:
-    #         print(v.varName, v.x)
-    # print('Obj:', m.objVal)
-
-    # logfile = open('%s.log' % (qname), 'w')
-
-    # logfile = m._logfile
-
-    # m.write("%s.log" %qname)
+    if relax == False:
+        gap = m.MIPGAP
 
     t1 = time.time()
     totaltime = t1 - t0

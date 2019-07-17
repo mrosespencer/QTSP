@@ -4,7 +4,7 @@ import GetVal
 import PrintM
 
 
-def SolveTSP(n, c, q, qname, presolve):
+def SolveTSP(n, c, q, qname, presolve, relax):
     t0 = time.time()
     # Create model
     m = Model()
@@ -47,8 +47,8 @@ def SolveTSP(n, c, q, qname, presolve):
 
     for i in range(n):
         for j in range(n):
-            # x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
-            x[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='x ' + str(i) + '_' + str(j), lb=0, ub=1)
+            x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
+
             if i != j:
                 ij = GetVal.getval(i, j, n)
                 t[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='t-' + str(i) + '_' + str(j), lb = lowerv[ij]-1)   # determine appropriate lower bound
@@ -137,6 +137,9 @@ def SolveTSP(n, c, q, qname, presolve):
                 con2.clear()
 
     m.update()
+    if relax == True:
+        m = m.relax()
+        gap = 0
     m.optimize()
 
 
@@ -145,27 +148,17 @@ def SolveTSP(n, c, q, qname, presolve):
     varlist = []
 
     if m.status != GRB.Status.INFEASIBLE:
-        print("McC: %f", m.objVal)
+
         for v in m.getVars():
             if v.VarName.find('x ') != -1:
                 varlist.append(v.x)
-                print(v.varName, v.x)
 
         for i in range(n):
             for j in range(n):
                 finalx[i, j] = varlist[(n * i) + j]
 
-        # print(PrintM.printmatrix(finalx, n))
-
-        # gap = m.MIPGAP
-        gap = 0
-        obj= m.objVal
-
-        # for v in m.getVars():
-        #     if v.x > 0:
-        #         print(v.varName, v.x)
-        # print('Obj:', obj)
-
+        if relax == False:
+            gap = m.MIPGAP
 
 
     else:
@@ -178,18 +171,7 @@ def SolveTSP(n, c, q, qname, presolve):
         gap = 0
         obj = 0
 
-    # gap = m.MIPGAP
 
-    # for v in m.getVars():
-    #     if v.x > 0:
-    #         print(v.varName, v.x)
-    # print('Obj:', m.objVal)
-
-    # logfile = open('%s.log' % (qname), 'w')
-
-    # logfile = m._logfile
-
-    # m.write("%s.log" %qname)
 
     t1 = time.time()
     totaltime = t1 - t0
@@ -197,4 +179,4 @@ def SolveTSP(n, c, q, qname, presolve):
     status = m.status
 
 
-    return obj, totaltime, finalx, gap, status
+    return  m.objVal, totaltime, finalx, gap, status

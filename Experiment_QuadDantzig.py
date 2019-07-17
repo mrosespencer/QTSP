@@ -15,6 +15,7 @@ import PrintM
 
 minsize = 5
 maxsize = 11
+# We provide 100 size 5 problems (averaged), 10 size 8 problems (averaged), 5 size 10 problems, 5 size 12 problems (one solved), one of each sizes 15, 20, 25, and 30 (none solved).
 # size = [5,8,10,15]
 size = [12]
 
@@ -25,11 +26,11 @@ presolve = 0
 skip = False
 adj = False
 
-# Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
+# Set number of trials to (can do up to 100 size 5, and 5 size 10, five each size 10 and 12)
 fivetrials = 0
-tentrials = 0
 eighttrials = 0
-twelvetrials = 10
+tentrials = 1
+twelvetrials = 0
 totaltrials = fivetrials + tentrials + eighttrials +twelvetrials
 
 
@@ -242,7 +243,8 @@ for p in range(8):
 
             count += 1
 
-    if fivetrials > 0:
+    # Average all size 5 problems
+    if fivetrials > 1:
         fiveavg = [0]*8
         for i in range(8):
             fiveavg[i] = round(sum(time[i,j] for j in range(fivetrials))/fivetrials, 3)
@@ -251,7 +253,9 @@ for p in range(8):
 
         file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
                     5, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5], fiveavg[6], fiveavg[7]))
-    if eighttrials > 0:
+
+    # Average all size 8 problems
+    if eighttrials > 1:
         eightavg = [0] * 8
         for i in range(8):
             eightavg[i] = round(sum(time[i, j] for j in range(eighttrials)) / eighttrials, 4)
@@ -261,6 +265,7 @@ for p in range(8):
         file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
             8, eightavg[0], eightavg[1], eightavg[2], eightavg[3], eightavg[4], eightavg[5], eightavg[6], eightavg[7]))
 
+    # Report remaining trials
     for i in range(fivetrials+eighttrials, totaltrials):
         file.write("%d & %g & %g & %g & %g & %g & %g & %g & %g \\\\  \n" % (
                 n, time[0, i], time[1, i], time[2,i], time[3, i], time[4, i], time[5, i],time[6, i], time[7,i]))

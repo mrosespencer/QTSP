@@ -1,11 +1,4 @@
-# This program runs the experimentation for the SCF formulation of the linearized quadratic traveling salesman problem.
-# We test one version of the quadratic cost matrix (balanced Q), and one modifcation (upper triangular). We then test
-# methods to linearize the quadratic objective function. Those linearizations are: replacing the quadratic term with a
-# binary variable, the classical linearization using continuous variables, the McCormick envelopes, base 2 and base 10
-# linearizations. All linearized models are found in the sub folder LinSCF. We test these linearizations against the
-# non-linear form. The outputs for this program are the latex file that produces the tables in my report, as well as
-#  simple text files of the objective value, gap value, Gurobi status, and the tour of the TSP. It also outputs the
-#  Gurobi log files.
+# This program runs the experimentation for the SCF formulation of the linearized quadratic traveling salesman problem. We then test methods to linearize the quadratic objective function. Those linearizations are: replacing the quadratic term with a binary variable, the classical linearization using continuous variables, the McCormick envelopes, base 2 and base 10 linearizations. All linearized models are found in the sub folder LinSCF. We test these linearizations against the non-linear form. We also test the linear relaxation. The outputs for this program are the latex file that produces the tables in my report, as well as simple text files of the objective value, gap value, Gurobi status, and the tour of the TSP. It also outputs the Gurobi log files.
 
 
 
@@ -39,6 +32,7 @@ import LinSCF.SCFLinB10
 
 minsize = 5
 maxsize = 11
+# We provide 100 size 5 problems (averaged), 10 size 8 problems (averaged), 5 size 10 problems, 5 size 12 problems (one solved), one of each sizes 15, 20, 25, and 30 (none solved).
 # size = [5,8,10,15]
 size = [12]
 
@@ -49,13 +43,14 @@ presolve = 0
 skip = False
 adj = False
 
+# Modify this parameter to run either the integer (False) or relaxed models (False)
 # Test relaxed models
 relax = True
 
-# Set number of trials of 5 to average (can do up to 100 size 5, and 5 size 10)
+# Set number of trials to (can do up to 100 size 5, and 5 size 10, five each size 10 and 12)
 fivetrials = 0
-tentrials = 0
 eighttrials = 0
+tentrials = 0
 twelvetrials = 1
 totaltrials = fivetrials + tentrials + eighttrials +twelvetrials
 
@@ -232,6 +227,7 @@ for p in range(8):
 
             count += 1
 
+    # Average all size 5 problems
     if fivetrials > 1:
         fiveavg = [0] * 6
         for i in range(6):
@@ -242,6 +238,7 @@ for p in range(8):
         file.write("%d & %g & %g & %g & %g & %g & %g  \\\\  \n" % (
             5, fiveavg[0], fiveavg[1], fiveavg[2], fiveavg[3], fiveavg[4], fiveavg[5]))
 
+    # Average all size 8 problems
     if eighttrials > 1:
         eightavg = [0] * 6
         for i in range(6):
@@ -252,6 +249,7 @@ for p in range(8):
         file.write("%d & %g & %g & %g & %g & %g & %g  \\\\  \n" % (
             8, eightavg[0], eightavg[1], eightavg[2], eightavg[3], eightavg[4], eightavg[5]))
 
+    # Report remaining trials
     for i in range(fivetrials + eighttrials, totaltrials):
         file.write("%d & %g & %g & %g & %g & %g & %g \\\\  \n" % (
             n, time[0, i], time[1, i], time[2, i], time[3, i], time[4, i], time[5, i]))

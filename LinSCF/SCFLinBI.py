@@ -3,7 +3,7 @@ import time
 import GetVal
 
 
-def SolveTSP(n, c, q, qname, presolve):
+def SolveTSP(n, c, q, qname, presolve, relax):
     t0 = time.time()
     # Create model
     m = Model()
@@ -30,12 +30,11 @@ def SolveTSP(n, c, q, qname, presolve):
 
     for i in range(n):
         for j in range(n):
-            x[i, j] = m.addVar(vtype=GRB.BINARY, name='e ' + str(i) + '_' + str(j))
+            x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
             w[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='flow-' + str(i) + '_' + str(j))
 
-        # Create edge matrix
+    # Create edge matrix
 
-    e = []
     e = [x[i, j] for i in range(n) for j in range(n) if i != j]
     f = len(e)
 
@@ -43,7 +42,8 @@ def SolveTSP(n, c, q, qname, presolve):
 
     for i in range(f):
         for j in range(f):
-            y[i, j] = m.addVar(vtype=GRB.BINARY, name="y " + str(i) + '_' + str(j))
+            y[i,j] = m.addVar(vtype=GRB.BINARY, name="y "+ str(i) + '_'+str(j))
+
 
     # Set objective
 
@@ -90,6 +90,9 @@ def SolveTSP(n, c, q, qname, presolve):
     # m.setParam('OutputFlag', False)
 
     m.update()
+    if relax == True:
+        m = m.relax()
+        gap = 0
     m.optimize()
     finalx = {}
     varlist = []
@@ -102,15 +105,16 @@ def SolveTSP(n, c, q, qname, presolve):
     #         print('%s' % c.constrName)
 
     for v in m.getVars():
-        if v.VType == GRB.BINARY:
+        if v.VarName.find('x ') != -1:
             varlist.append(v.x)
 
     for i in range(n):
         for j in range(n):
             finalx[i, j] = varlist[(n * i) + j]
 
+    if relax == False:
+        gap = m.MIPGAP
 
-    gap = m.MIPGAP
 
 
 

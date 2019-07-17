@@ -4,12 +4,12 @@ import GetVal
 import math
 
 
-def SolveTSP(n, c, q, qname, presolve):
+def SolveTSP(n, c, q, qname, presolve, relax):
     t0 = time.time()
     # Create model
     m = Model()
 
-    logname = "scf_lincl-" + qname + "-log"
+    logname = "scf_linb2-" + qname + "-log"
 
     # m.setParam('OutputFlag', False)
     m.Params.logtoconsole = 0
@@ -59,16 +59,18 @@ def SolveTSP(n, c, q, qname, presolve):
 
     for i in range(n):
         for j in range(n):
-            x[i, j] = m.addVar(vtype=GRB.BINARY, name='e ' + str(i) + '_' + str(j))
+            x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
             w[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='flow-' + str(i) + '_' + str(j))
             if i != j:
                 ij = GetVal.getval(i, j, n)
                 for p in range(upperp[ij]):
                     wone[ij, p] = m.addVar(vtype=GRB.BINARY, name='w1 ' + str(i) + str(j) + '_' + str(p))
                     tone[ij, p] = m.addVar(vtype=GRB.BINARY, name='t1 ' + str(i) + str(j) + '_' + str(p))
+
                 for o in range(lowerp[ij]):
                     wtwo[ij, o] = m.addVar(vtype=GRB.BINARY, name='w1 ' + str(i) + str(j) + '_' + str(o))
                     ttwo[ij, o] = m.addVar(vtype=GRB.BINARY, name='t1 ' + str(i) + str(j) + '_' + str(o))
+
 
 
     # Set objective
@@ -148,6 +150,9 @@ def SolveTSP(n, c, q, qname, presolve):
     # m.setParam('OutputFlag', False)
 
     m.update()
+    if relax == True:
+        m = m.relax()
+        gap = 0
     m.optimize()
     finalx = {}
     varlist = []
@@ -160,15 +165,15 @@ def SolveTSP(n, c, q, qname, presolve):
     #         print('%s' % c.constrName)
 
     for v in m.getVars():
-        if v.VType == GRB.BINARY:
+        if v.VarName.find('x ') != -1:
             varlist.append(v.x)
 
     for i in range(n):
         for j in range(n):
             finalx[i, j] = varlist[(n * i) + j]
 
-
-    gap = m.MIPGAP
+    if relax == False:
+        gap = m.MIPGAP
 
 
     t1 = time.time()

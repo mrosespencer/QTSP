@@ -3,7 +3,7 @@ import time
 import GetVal
 
 
-def SolveTSP(n, c, q, qname, presolve):
+def SolveTSP(n, c, q, qname, presolve, relax):
     t0 = time.time()
     # Create model
     m = Model()
@@ -44,6 +44,7 @@ def SolveTSP(n, c, q, qname, presolve):
     for i in range(n):
         for j in range(n):
             x[i, j] = m.addVar(vtype=GRB.BINARY, name='x ' + str(i) + '_' + str(j))
+
             if i != j:
                 ij = GetVal.getval(i, j, n)
                 t[i, j] = m.addVar(vtype=GRB.CONTINUOUS, name='t-' + str(i) + '_' + str(j), lb = lowerv[ij]-1)   # determine appropriate lower bound
@@ -132,6 +133,9 @@ def SolveTSP(n, c, q, qname, presolve):
     # m.setParam('OutputFlag', False)
 
     m.update()
+    if relax == True:
+        m = m.relax()
+        gap = 0
     m.optimize()
     finalx = {}
     varlist = []
@@ -141,15 +145,14 @@ def SolveTSP(n, c, q, qname, presolve):
 
 
         for v in m.getVars():
-            if v.VType == GRB.BINARY:
+            if v.VarName.find('x ') != -1:
                 varlist.append(v.x)
 
         for i in range(n):
             for j in range(n):
                 finalx[i, j] = varlist[(n * i) + j]
-
-
-        gap = m.MIPGAP
+        if relax == False:
+            gap = m.MIPGAP
 
 
 
